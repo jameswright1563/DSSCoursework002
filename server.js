@@ -8,6 +8,10 @@ var path = require('path');
 process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 //this turns off SSL certificate checking, as we dont have a SSL certificate
 
+app.use('/html',express.static('html'));
+app.use('/img',express.static('img'));
+app.use('/css', express.static('css'))
+app.use('/js', express.static('js'))
 
 
 
