@@ -9,7 +9,8 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED='0';
 
 
 app.use(express.static('html'));//specifies where the static files are
-
+app.use('/img',express.static('img'));
+app.use('/css', express.static('css'))
 var server = app.listen(3000, function () { //setup the server
    var host = server.address().address
    var port = server.address().port
