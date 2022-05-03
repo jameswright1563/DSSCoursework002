@@ -1,19 +1,22 @@
+const mysql = require('mysql');
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
 
-
-function alerting(){
-    window.alert("Username/Password Incorrect")
-}
+const connection = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : '',
+    database : 'nodelogin'
+});
 
 const app = express();
 
-//app.use(session({
-  //  secret: 'secret',
- //   resave: true,
-  //  saveUninitialized: true
-//}));
+app.use(session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
@@ -52,12 +55,18 @@ app.post('/auth', function(request, response) {
         response.end();
     }
 });
-app.post('/signup', function(request, response){
-    let username = request.body.username;
-    let email = request.body.email;
-    let password = request.body.password;
-    let confirm = request.body.confirm_password;
-        db.user.create({"username":username,
-                        "email": email,
-                        "password": password})
+
+// http://localhost:3000/home
+app.get('/home', function(request, response) {
+    // If the user is loggedin
+    if (request.session.loggedin) {
+        // Output username
+        response.send('Welcome back, ' + request.session.username + '!');
+    } else {
+        // Not logged in
+        response.send('Please login to view this page!');
+    }
+    response.end();
 });
+
+app.listen(3000);

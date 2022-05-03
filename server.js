@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-var path = require('path');
+var path = require('path')
 //these are the modules that are needed for the code to work
 
 
@@ -12,15 +12,20 @@ app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'))
 app.use('/js', express.static('js'))
-
-
-
-//app.use(express.static('html'));//specifies where the static files are
-//app.use('/img',express.static('img'));
-//app.use('/css', express.static('css'))
-
 app.get('/', function(req, res){
-   res.sendFile(path.join(__dirname, '/html/index.html'))
+   res.sendFile(path.join(__dirname+'/html', '/index.html'))
+
+})
+
+app.get('/index', function(req, res){
+   res.sendFile(path.join(__dirname+'/html', '/index.html'))
+
+})
+app.get('/login', function(req, res){
+   res.sendFile(path.join(__dirname+'/html', '/login.html'))
+})
+app.get('/createpost', function(req, res){
+   res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
 })
 
 var server = app.listen(3000, function () { //setup the server
