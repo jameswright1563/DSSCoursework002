@@ -102,7 +102,7 @@ const loginjs = require('./js/login')
 app.post('/auth', function(request, response) {
     // Capture the input fields
     let username = request.body.username;
-    let password = request.body.password2;
+    let password = request.body.password;
     // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRED
     try{
         conn.collection("users").find({"username": username, "password": password})
@@ -112,7 +112,7 @@ app.post('/auth', function(request, response) {
                                                     response.render('pages/login')
                                                 }
                                                 else {
-                                                    console.log("yes")
+                                                    console.log("Logged in: %s", results[0]["username"])
                                                     loggedin = "Profile";
                                                     response.render('pages/index', {loggedin:loggedin})
                                                 }
@@ -124,10 +124,22 @@ app.post('/auth', function(request, response) {
     }
 });
 
-const bcrpt = require('bcryptjs')
+const bcrypt = require('bcryptjs')
 
 function encryptpass(request){
-    return bcrpt.hashSync(request.body.password2, 8)
+    return bcrypt.hashSync(request.body.password2, 8)
+}
+
+function passVerify(request){
+    datab = conn.collection("users").find({"username": request.username}).toArray(err, results);
+    bcrypt.compare(request.password, datab[0]["password"], function (err, res){
+        if(err){
+            return false;
+        }
+        if(res){
+            return true;
+        }
+    })
 }
 function checkUserExists(username){
     try {
