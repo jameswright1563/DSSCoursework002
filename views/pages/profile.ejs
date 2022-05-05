@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+    <%- include('../partials/navbar', {loggedin:loggedin}); %>
+    <section>
+        <h1 align="center">Food Blog</h1>
+    </section>
+    <div class="posts">
+        <h3 align="center">Spaghetti Bolognese Recipe</h3>
+        <img src="../img/spagbowl.png" align="center" onclick="testFunction()">
+        <p>Text here.</p>
+        <hr class="rounded1">
+        <i onclick="likedislike(this)" class="fa fa-thumbs-up"></i>
+        <i onclick="comments(this)"></i>
+    </div>
+
+</div>
+
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+
+</body>
+</html>
