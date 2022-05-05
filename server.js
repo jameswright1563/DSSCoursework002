@@ -5,6 +5,7 @@ const app = express();
 var mongoose = require("mongoose")
 require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
+
 app.set('view engine', 'ejs');
 var corsOptions = {
   origin: "http://localhost:8081"
@@ -112,6 +113,20 @@ const { resolve } = require("path");
 const conn = mongoose.connection;
 const loginjs = require('./js/login')
 
+function createPost(request, response){
+    try{
+        db.post.create({
+            "author": request.author,
+            "title": request.title,
+            "image": request.image,
+            "description": request.description
+        });
+    } catch(e){
+        console.log("Error creating Post")
+        response.render("pages/createpost", {})
+    }
+}
+
 
 app.post('/auth', function(request, response) {
     // Capture the input fields
@@ -125,7 +140,7 @@ app.post('/auth', function(request, response) {
                                                     console.log("No")
                                                     response.render('pages/login')
                                                 }
-                                                else {
+                                                else if(passVerify(request)) {
                                                     console.log("Logged in: %s", results[0]["username"])
                                                     loggedin = "Profile";
                                                     response.render('pages/index', {loggedin:loggedin})
