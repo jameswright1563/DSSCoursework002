@@ -10,7 +10,6 @@
         </section>
 
         <div class="createpost">
-            <h1>Create Post</h1>
             <form action="/makepost" method="post">
                 <label for="title">
                     <!-- font awesome icon -->
@@ -18,10 +17,13 @@
                 </label>
 
                 <input type="text" name="title" placeholder="Title" id="title" required>
+                <br>
                 <label for="description">
                     <i class="fa fa-paper-plane"></i>
                 </label>
+
                 <input type="text"  name="description" placeholder="Description" id="description" required>
+                <br>
                 <label for="image">Upload Image</label>
                 <input type="file" id="image" name="image" value="" required>
                 <input type="submit" value="Upload post">
