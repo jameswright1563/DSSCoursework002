@@ -11,6 +11,8 @@ var corsOptions = {
 };
 var loggedin = "Register/Login"
 
+//Get data from database for posts and put in a variable to send to the page.
+
 var test = [
     {title: 'test1', desc: 'lol1'},
     {title: 'test2', desc: 'lol2'},
