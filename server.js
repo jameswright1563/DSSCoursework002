@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const path = require('path')
 const app = express();
-var mongoose = require("mongoose")
+const mongoose = require("mongoose")
+
 require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
 
@@ -16,6 +17,7 @@ var loggedin = "Register/Login"
 const conn = mongoose.connection;
 
 var test = [];
+
 const db = require("./models");
 const Role = db.role;
 db.mongoose
@@ -41,19 +43,14 @@ app.get('/', async function (req, res) {
 });
 
 app.use(cors(corsOptions));
-// parse requests of content-type - application/json
 app.use(express.json());
-// parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
-
 app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 
-
 app.get('/login', function(req, res){
-   //res.sendFile(path.join(__dirname+'/html', '/login.html'))
     if(loggedin == "Profile"){
         res.render('pages/profile', {loggedin: loggedin});
         console.log("test")
@@ -62,7 +59,6 @@ app.get('/login', function(req, res){
     }
 });
 app.get('/createpost', function(req, res){
-   //res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
     res.render('pages/createpost', {loggedin: loggedin});
 });
 
@@ -72,12 +68,9 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
-
 
 function initial() {
   Role.estimatedDocumentCount((err, count) => {
@@ -114,7 +107,6 @@ const { Session } = require("inspector");
 const { resolve } = require("path");
 
 const loginjs = require('./js/login')
-
 
 function createPost(request, response){
     try{
