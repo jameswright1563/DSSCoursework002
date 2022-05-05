@@ -38,9 +38,10 @@ app.get('/', function(req, res){
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
     if(loggedin == "Profile"){
-        res.render('pages/login', {loggedin: loggedin});
-    }else{
         res.render('pages/profile', {loggedin: loggedin});
+        console.log("test")
+    }else{
+        res.render('pages/login', {loggedin: loggedin});
     }
 });
 app.get('/createpost', function(req, res){
@@ -143,7 +144,7 @@ app.post('/auth', function(request, response) {
                                                 else if(passVerify(request)) {
                                                     console.log("Logged in: %s", results[0]["username"])
                                                     loggedin = "Profile";
-                                                    response.render('pages/index', {loggedin:loggedin})
+                                                    response.render('pages/index', {loggedin:loggedin, test:test})
                                                 }
                                             });
                                             }
