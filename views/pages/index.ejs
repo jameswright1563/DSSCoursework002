@@ -9,18 +9,21 @@
             <h1 align="center">Food Blog</h1>
         </section>
         <div>
-            <% test.forEach(function(test) { %>
+            <% for(var i=0; i<test.length; i++) { %>
                 <div class="posts">
-                    <h3 align="center"><%= test.title%></h3>
-                    <img src="data:image/<%=test.image.contentType%>;base64,
-                     <%=test.image.data.toString('base64')%>" align="center" onclick="testFunction()">
-                    <p><%= test.description%></p>
+                    <h3 align="center"><%= test[i].title%></h3>
+                    <%if(locals.test[i].image.contentType){%>
+                    <img src="data:image/<%=test[i].image.contentType%>;base64,
+                     <%=test[i].image.data.toString('base64')%>" align="center" onclick="testFunction()">
+                    <%}else{%>
+                    <%console.log("yes")}%>
+                    <p><%= test[i].description%></p>
                     <hr class="rounded1">
                     <i onclick="likedislike(this)" class="fa fa-thumbs-up"></i>
                     <i onclick="comments(this)"></i>
                 </div>
                 <br>
-            <% }); %>
+            <% } %>
         </div>
 </div>
 

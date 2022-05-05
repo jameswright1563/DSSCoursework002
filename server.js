@@ -13,9 +13,32 @@ var corsOptions = {
 var loggedin = "Register/Login"
 
 //Get data from database for posts and put in a variable to send to the page.
+const conn = mongoose.connection;
 
 var test = [];
+const db = require("./models");
+const Role = db.role;
+db.mongoose
+    .connect(`mongodb+srv://js_user:4488@cluster0.jp9fi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => {
+        console.log("Successfully connect to MongoDB.");
+        initial();
+    })
+    .catch(err => {
+        console.error("Connection error", err);
+        process.exit();
+    });
 
+app.get('/', async function (req, res) {
+    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
+    test = await db.post.find({})
+    console.log(test[0]);
+    console.log(test[0].title)
+    res.render('pages/index', {loggedin: loggedin, test: test});
+});
 
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
@@ -28,15 +51,7 @@ app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 
-app.get('/', function(req, res){
-   //res.sendFile(path.join(__dirname+'/html', '/index.html'))
-    conn.collection("posts").find().toArray((err, results) => {
-        console.log(results[0]);
-        test = results;
-    });
 
-    res.render('pages/index', {loggedin: loggedin, test: test});
-});
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
     if(loggedin == "Profile"){
@@ -57,21 +72,6 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-const db = require("./models");
-const Role = db.role;
-db.mongoose
-  .connect(`mongodb+srv://js_user:4488@cluster0.jp9fi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
-  .then(() => {
-    console.log("Successfully connect to MongoDB.");
-    initial();
-  })
-  .catch(err => {
-    console.error("Connection error", err);
-    process.exit();
-  });
 
 
 app.use(express.json());
@@ -113,8 +113,8 @@ const session = require('express-session');
 const { Session } = require("inspector");
 const { resolve } = require("path");
 
-const conn = mongoose.connection;
 const loginjs = require('./js/login')
+
 
 function createPost(request, response){
     try{
@@ -124,6 +124,7 @@ function createPost(request, response){
             "image": request.image,
             "description": request.description
         });
+
     } catch(e){
         console.log("Error creating Post")
         response.render("pages/createpost", {})
