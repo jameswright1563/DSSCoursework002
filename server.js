@@ -5,6 +5,7 @@ const app = express();
 var mongoose = require("mongoose")
 require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
+app.set('view engine', 'ejs');
 var corsOptions = {
   origin: "http://localhost:8081"
 };
@@ -16,23 +17,20 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
-app.use('/css', express.static('css'))
-app.use('/js', express.static('js'))
+app.use('/css', express.static('css'));
+app.use('/js', express.static('js'));
 app.get('/', function(req, res){
-   res.sendFile(path.join(__dirname+'/html', '/index.html'))
-
-})
-
-app.get('/index', function(req, res){
-   res.sendFile(path.join(__dirname+'/html', '/index.html'))
-
-})
+   //res.sendFile(path.join(__dirname+'/html', '/index.html'))
+    res.render('pages/index')
+});
 app.get('/login', function(req, res){
-   res.sendFile(path.join(__dirname+'/html', '/login.html'))
-})
+   //res.sendFile(path.join(__dirname+'/html', '/login.html'))
+    res.render('pages/login');
+});
 app.get('/createpost', function(req, res){
-   res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
-})
+   //res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
+    res.render('pages/createpost');
+});
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -60,10 +58,6 @@ db.mongoose
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
-app.get('/', function(request, response) {
-    // Render login template
-    response.sendFile(path.join(__dirname + '/login.html'));
-});
 
 
 function initial() {

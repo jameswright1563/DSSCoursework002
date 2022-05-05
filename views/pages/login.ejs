@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+
+</head>
+<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><header class="u-clearfix u-header u-header" id="sec-0af5"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <%- include('../partials/navbar'); %>
+        <section>
+            <h1 align="center">Food Blog</h1>
+        </section>
+        <div class="login">
+            <p id="message"></p>
+            <h1>Login</h1>
+            <form action="/auth" method="post">
+                <label for="username">
+                    <!-- font awesome icon -->
+                    <i class="fas fa-user"></i>
+                </label>
+                <input type="text" name="username" placeholder="Username" id="username" required>
+                <label for="password">
+                    <i class="fas fa-lock"></i>
+                </label>
+                <input type="password" name="password" placeholder="Password" id="password" required>
+                <a href="">Forgotten Username/Password?</a>
+                <input type="submit" value="Login">
+            </form>
+        </div>
+        <div class="register">
+            <h1>Sign Up</h1>
+            <form action="/signup" method="post">
+                <label for="username">
+                    <!-- font awesome icon -->
+                    <i class="fas fa-user"></i>
+                </label>
+
+                <input type="text" name="username" placeholder="Username" id="username" required>
+                <label for="email">
+                    <i class="fa fa-paper-plane"></i>
+                </label>
+                <input type="email"  name="email" placeholder="Email Address" id="email" required>
+                <label for="password2">
+                    <i class="fas fa-lock"></i>
+                </label>
+                <input type="password" name="password2" placeholder="Password" id="password" required>
+                <label for="confirm_password">
+                    <i class="fa fa-check"></i>
+                </label>
+                <input type="password"  name="confirm_password" placeholder="Confirm Password" id="confirm_password" required>
+                <input type="submit" value="Sign Up">
+            </form>
+        </div>
+
+    </div></header>
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+</body>
+</html>
