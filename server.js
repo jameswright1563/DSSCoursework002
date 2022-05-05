@@ -9,8 +9,7 @@ app.set('view engine', 'ejs');
 var corsOptions = {
   origin: "http://localhost:8081"
 };
-var test = "not logged in";
-
+var loggedin = "Register/Login"
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -23,15 +22,15 @@ app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 app.get('/', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
-    res.render('pages/index', {test: "Log In / Register"});
+    res.render('pages/index', {loggedin: loggedin});
 });
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
-    res.render('pages/login');
+    res.render('pages/login', {loggedin: loggedin});
 });
 app.get('/createpost', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
-    res.render('pages/createpost');
+    res.render('pages/createpost', {loggedin: loggedin});
 });
 
 // set port, listen for requests
@@ -98,7 +97,7 @@ const { resolve } = require("path");
 
 const conn = mongoose.connection;
 const loginjs = require('./js/login')
-var loggedin = "Profile"
+
 
 app.post('/auth', function(request, response) {
     // Capture the input fields
@@ -114,8 +113,8 @@ app.post('/auth', function(request, response) {
                                                 }
                                                 else {
                                                     console.log("yes")
-                                                    test = "logged in";
-                                                    response.render('pages/index', {test:loggedin})
+                                                    loggedin = "Profile";
+                                                    response.render('pages/index', {loggedin:loggedin})
                                                 }
                                             });
                                             }
