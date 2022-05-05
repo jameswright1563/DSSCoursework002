@@ -9,6 +9,8 @@ app.set('view engine', 'ejs');
 var corsOptions = {
   origin: "http://localhost:8081"
 };
+var test = "not logged in";
+
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -21,7 +23,7 @@ app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 app.get('/', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
-    res.render('pages/index')
+    res.render('pages/index', {test: test});
 });
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
@@ -97,6 +99,7 @@ const { resolve } = require("path");
 const conn = mongoose.connection;
 const loginjs = require('./js/login')
 
+
 app.post('/auth', function(request, response) {
     // Capture the input fields
     let username = request.body.username;
@@ -107,10 +110,11 @@ app.post('/auth', function(request, response) {
                                             .toArray((err, results) => {
                                                 if (results.length==0){
                                                     console.log("No")
-                                                    response.sendFile(path.join(__dirname+'/html', '/login.html'))
+                                                    response.render('pages/login')
                                                 }
                                                 console.log("yes")
-                                                response.sendFile(path.join(__dirname+'/html', '/index.html'))});
+                                                test = "logged in";
+                                                response.render('pages/index', {test: test})});
                                             }
     catch (e){
         console.log("No")
