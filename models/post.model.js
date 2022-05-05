@@ -1,10 +1,13 @@
 const mongoose = require("mongoose");
-const Post = mongoose.Model(
+const Post = mongoose.model(
     "Post",
     new mongoose.Schema({
         author: String,
         title: String,
-        image: File,
+        image: {
+            data: Buffer,
+            contentType: String
+        },
         description: String,
         roles: [{
             type: mongoose.Schema.Types.ObjectId,
@@ -13,4 +16,4 @@ const Post = mongoose.Model(
 
 }
 ));
-module.exports(Post)
+module.exports = Post

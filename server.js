@@ -14,11 +14,7 @@ var loggedin = "Register/Login"
 
 //Get data from database for posts and put in a variable to send to the page.
 
-var test = [
-    {title: 'test1', desc: 'lol1'},
-    {title: 'test2', desc: 'lol2'},
-    {title: 'test3', desc: 'lol3'}
-];
+var test = [];
 
 
 app.use(cors(corsOptions));
@@ -31,8 +27,14 @@ app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
+
 app.get('/', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
+    conn.collection("posts").find().toArray((err, results) => {
+        console.log(results[0]);
+        test = results;
+    });
+
     res.render('pages/index', {loggedin: loggedin, test: test});
 });
 app.get('/login', function(req, res){
@@ -128,6 +130,18 @@ function createPost(request, response){
     }
 }
 
+app.post('/makepost', function(request, response) {
+    let title = request.body.title;
+    let description = request.body.description;
+    let image = request.body.image;
+    db.post.create({
+        "author":"test",
+        "title": title,
+        "image": image,
+        "description": description
+    });
+    response.render('pages/index', {loggedin: loggedin, test: test});
+});
 
 app.post('/auth', function(request, response) {
     // Capture the input fields
@@ -195,5 +209,5 @@ app.post('/signup', function(request, response){
             db.user.create({"username":username,
                             "email": email,
                             "password": encryptpass(request)});
-            response.sendFile(path.join(__dirname+'/html', '/index.html'))
+        response.render('pages/index', {loggedin: loggedin, test: test});
 }})

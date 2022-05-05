@@ -12,8 +12,9 @@
             <% test.forEach(function(test) { %>
                 <div class="posts">
                     <h3 align="center"><%= test.title%></h3>
-                    <img src="../img/spagbowl.png" align="center" onclick="testFunction()">
-                    <p><%= test.desc%></p>
+                    <img src="data:image/<%=test.image.contentType%>;base64,
+                     <%=test.image.data.toString('base64')%>" align="center" onclick="testFunction()">
+                    <p><%= test.description%></p>
                     <hr class="rounded1">
                     <i onclick="likedislike(this)" class="fa fa-thumbs-up"></i>
                     <i onclick="comments(this)"></i>
