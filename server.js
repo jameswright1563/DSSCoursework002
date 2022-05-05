@@ -10,6 +10,16 @@ var corsOptions = {
   origin: "http://localhost:8081"
 };
 var loggedin = "Register/Login"
+
+//Get data from database for posts and put in a variable to send to the page.
+
+var test = [
+    {title: 'test1', desc: 'lol1'},
+    {title: 'test2', desc: 'lol2'},
+    {title: 'test3', desc: 'lol3'}
+];
+
+
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -22,11 +32,15 @@ app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 app.get('/', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
-    res.render('pages/index', {loggedin: loggedin});
+    res.render('pages/index', {loggedin: loggedin, test: test});
 });
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
-    res.render('pages/login', {loggedin: loggedin});
+    if(loggedin == "Profile"){
+        res.render('pages/login', {loggedin: loggedin});
+    }else{
+        res.render('pages/profile', {loggedin: loggedin});
+    }
 });
 app.get('/createpost', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
