@@ -36,7 +36,11 @@ app.get('/', function(req, res){
 });
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
-    res.render('pages/login', {loggedin: loggedin});
+    if(loggedin == "Profile"){
+        res.render('pages/login', {loggedin: loggedin});
+    }else{
+        res.render('pages/profile', {loggedin: loggedin});
+    }
 });
 app.get('/createpost', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/createpost.html'))
