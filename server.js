@@ -10,6 +10,14 @@ var corsOptions = {
   origin: "http://localhost:8081"
 };
 var loggedin = "Register/Login"
+
+var test = [
+    {title: 'test1', desc: 'lol1'},
+    {title: 'test2', desc: 'lol2'},
+    {title: 'test3', desc: 'lol3'}
+];
+
+
 app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json());
@@ -22,7 +30,7 @@ app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 app.get('/', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
-    res.render('pages/index', {loggedin: loggedin});
+    res.render('pages/index', {loggedin: loggedin, test: test});
 });
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
