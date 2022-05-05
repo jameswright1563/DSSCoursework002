@@ -3,8 +3,8 @@
 <head>
     <%- include('../partials/head'); %>
 </head>
-<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><header class="u-clearfix u-header u-header" id="sec-0af5"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-        <%- include('../partials/navbar'); %>
+<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <%- include('../partials/navbar', {test:"Log In / Register"}); %>
         <section>
             <h1 align="center">Food Blog</h1>
         </section>
@@ -16,8 +16,8 @@
             <i onclick="likedislike(this)" class="fa fa-thumbs-up"></i>
             <i onclick="comments(this)"></i>
         </div>
-    <div><%=test%></div>
-    </div></header>
+
+</div>
 
 <footer>
     <%- include('../partials/footer'); %>

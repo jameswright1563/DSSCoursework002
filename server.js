@@ -23,7 +23,7 @@ app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
 app.get('/', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/index.html'))
-    res.render('pages/index', {test: test});
+    res.render('pages/index', {test: "Log In / Register"});
 });
 app.get('/login', function(req, res){
    //res.sendFile(path.join(__dirname+'/html', '/login.html'))
@@ -98,7 +98,7 @@ const { resolve } = require("path");
 
 const conn = mongoose.connection;
 const loginjs = require('./js/login')
-
+var loggedin = "Profile"
 
 app.post('/auth', function(request, response) {
     // Capture the input fields
@@ -112,9 +112,12 @@ app.post('/auth', function(request, response) {
                                                     console.log("No")
                                                     response.render('pages/login')
                                                 }
-                                                console.log("yes")
-                                                test = "logged in";
-                                                response.render('pages/index', {test: test})});
+                                                else {
+                                                    console.log("yes")
+                                                    test = "logged in";
+                                                    response.render('pages/index', {test:loggedin})
+                                                }
+                                            });
                                             }
     catch (e){
         console.log("No")
@@ -127,17 +130,29 @@ const bcrpt = require('bcryptjs')
 function encryptpass(request){
     return bcrpt.hashSync(request.body.password2, 8)
 }
+function checkUserExists(username){
+    try {
+        conn.collection("users").find({"username": username})
+            .toArray((err, results) => {
+                if (results.length == 0) {
+                    console.log("No");
+                    return false;
+                }
+                return true;
+            });
+    }   catch (e){
+        return false;
+    }
+}
 
 app.post('/signup', function(request, response){
     let username = request.body.username;
     let email = request.body.email;
     let password = request.body.password2;
     let confirm = request.body.confirm_password;
-
-    if(username && password){
-        db.user.create({"username":username,
-                        "email": email,
-                        "password": encryptpass(request)});
-        response.sendFile(path.join(__dirname+'/html', '/index.html'))
-    }
-});
+    if (confirm===password && username && !checkUserExists(username)){
+            db.user.create({"username":username,
+                            "email": email,
+                            "password": encryptpass(request)});
+            response.sendFile(path.join(__dirname+'/html', '/index.html'))
+}})
