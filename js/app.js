@@ -16,24 +16,15 @@ function myFunction() {
 }
 
 function mongoose() {
-    const mongoose = require('mongoose');
-
-    main().catch(err => console.log(err));
-
-    async function main() {
-        await mongoose.connect('mongodb://localhost:27017/test');
-    }
-
-
     const {MongoClient, ServerApiVersion} = require('mongodb');
-    const uri = "mongodb+srv://jameswright1563:Singapore00.@cluster0.jp9fi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
-    const client = new MongoClient(uri, {
+    const dbURI = "mongodb+srv://js_user:4488@cluster0.jp9fi.mongodb.net/test?retryWrites=true&w=majority";
+    const client = new MongoClient(dbURI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
         serverApi: ServerApiVersion.v1
     });
     client.connect(err => {
-        const collection = client.db("test").collection("devices");
+        const collection = client.db("test").collection("blogs");
         // perform actions on the collection object
         client.close();
     });
