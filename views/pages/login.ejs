@@ -12,7 +12,7 @@
         <div class="login">
             <p id="message"></p>
             <h1>Login</h1>
-            <form action="/auth" method="post">
+            <form action="/auth" method="post" class="form1">
                 <label for="username">
                     <!-- font awesome icon -->
                     <i class="fas fa-user"></i>
@@ -25,10 +25,13 @@
                 <a href="">Forgotten Username/Password?</a>
                 <input type="submit" value="Login">
             </form>
+            <p><%= error %></p>
+
         </div>
+
         <div class="register">
             <h1>Sign Up</h1>
-            <form action="/signup" method="post">
+            <form action="/signup" method="post" class="form1">
                 <label for="username">
                     <!-- font awesome icon -->
                     <i class="fas fa-user"></i>
@@ -51,7 +54,8 @@
             </form>
         </div>
 
-    </div>
+
+</div>
 <footer>
     <%- include('../partials/footer'); %>
 </footer>

@@ -4,7 +4,7 @@ const Post = mongoose.model(
     new mongoose.Schema({
         author: String,
         title: String,
-        image: {
+        img: {
             data: Buffer,
             contentType: String
         },

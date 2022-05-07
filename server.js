@@ -1,66 +1,60 @@
+require("dotenv").config()
 const express = require("express");
-const cors = require("cors");
 const path = require('path')
 const app = express();
 const mongoose = require("mongoose")
-
+const fs = require('fs')
+const multer = require('multer')
+const fileupload = require("express-fileupload");
+const Grid = require("gridfs-stream");
+const bodyParser = require('body-parser')
+//
+let gfs;
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(fileupload());
 require('./routes/auth.routes')(app);
 require('./routes/user.routes')(app);
-
+app.use('/uploads', express.static('uploads'))
 app.set('view engine', 'ejs');
-var corsOptions = {
-  origin: "http://localhost:8081"
-};
-var loggedin = "Register/Login"
 
+app.use(express.static(path.join(__dirname, 'static')));
+
+app.use('/html',express.static('html'));
+app.use('/img',express.static('img'));
+app.use('/css', express.static('css'));
+app.use('/js', express.static('js'));
+var loggedin = "Register/Login"
+var test = [];
+var db = require("./db.js");
+const Role = db.role;
 //Get data from database for posts and put in a variable to send to the page.
 const conn = mongoose.connection;
-
-var test = [];
-
-const db = require("./models");
-const Role = db.role;
-db.mongoose
-    .connect(`mongodb+srv://js_user:4488@cluster0.jp9fi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
-    .then(() => {
-        console.log("Successfully connect to MongoDB.");
-        initial();
-    })
-    .catch(err => {
-        console.error("Connection error", err);
-        process.exit();
-    });
+conn.once("open", function () {
+    gfs = Grid(conn.db, mongoose);
+    gfs.collection("posts");
+});
 
 app.get('/', async function (req, res) {
     //res.sendFile(path.join(__dirname+'/html', '/index.html'))
     test = await db.post.find({})
     console.log(test[0]);
-    console.log(test[0].title)
     res.render('pages/index', {loggedin: loggedin, test: test});
 });
 
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use('/html',express.static('html'));
-app.use('/img',express.static('img'));
-app.use('/css', express.static('css'));
-app.use('/js', express.static('js'));
 
 app.get('/login', function(req, res){
     if(loggedin == "Profile"){
-        res.render('pages/profile', {loggedin: loggedin});
+        res.render('pages/profile', {loggedin: loggedin, error:""});
         console.log("test")
     }else{
-        res.render('pages/login', {loggedin: loggedin});
+        res.render('pages/login', {loggedin: loggedin, error:""});
     }
 });
 app.get('/createpost', function(req, res){
     res.render('pages/createpost', {loggedin: loggedin});
 });
+
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
@@ -68,90 +62,88 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'static')));
-
-function initial() {
-  Role.estimatedDocumentCount((err, count) => {
-    if (!err && count === 0) {
-      new Role({
-        name: "user"
-      }).save(err => {
-        if (err) {
-          console.log("error", err);
-        }
-        console.log("added 'user' to roles collection");
-      });
-      new Role({
-        name: "moderator"
-      }).save(err => {
-        if (err) {
-          console.log("error", err);
-        }
-        console.log("added 'moderator' to roles collection");
-      });
-      new Role({
-        name: "admin"
-      }).save(err => {
-        if (err) {
-          console.log("error", err);
-        }
-        console.log("added 'admin' to roles collection");
-      });
+var storage = multer.diskStorage({
+    destination: function(req,file,cb){
+        title=req.body.title;
+        desc = req.body.description;
+        cb(null, '../uploads/')
+    },
+    filename: function(req, file, cb) {
+        cb(null, Date.now()+file.originalname)
     }
-  });
-}
-const session = require('express-session');
-const { Session } = require("inspector");
-const { resolve } = require("path");
+})
+var title;
+var desc;
 
-const loginjs = require('./js/login')
+function fileFilter(req,res,cb) {
+    if(file.mimetype === "image/jpeg"||file.mimetype ==='image/png'){
 
-function createPost(request, response){
-    try{
-        db.post.create({
-            "author": request.author,
-            "title": request.title,
-            "image": request.image,
-            "description": request.description
-        });
+        cb(null, true);
+    }
 
-    } catch(e){
-        console.log("Error creating Post")
-        response.render("pages/createpost", {})
+    else{
+        cb(null,false);
     }
 }
+var upload = multer({
+    storage:storage,
+    fileFilter: (req, file, cb) => {fileFilter(req, file, cb)}
+})
 
-app.post('/makepost', function(request, response) {
-    let title = request.body.title;
-    let description = request.body.description;
-    let image = request.body.image;
-    db.post.create({
-        "author":"test",
-        "title": title,
-        "image": image,
-        "description": description
+app.post('/makepost', upload.single('form'), async function(req, res){
+
+    if(!req.files)
+    {
+        console.log("No files were uploaded")
+    }
+    req.on('data', (data) => {
+        console.log(data.toString());
     });
-    response.render('pages/index', {loggedin: loggedin, test: test});
+    const file = req.files.image;
+
+    const path = __dirname +"/uploads/"+file.name;
+    file.mv(path, (err) => {
+        if (err) {
+            console.log("success");
+        }
+    });
+    await db.post.create({
+        "author": "",
+        "title": title,
+        "img": {
+            data: fs.readFileSync(path),
+            contentType: file.mimetype
+        },
+        "description": desc
+    })
+    res.render('pages/index', {loggedin: loggedin, test: test});
+
 });
 
+var error="";
 app.post('/auth', function(request, response) {
     // Capture the input fields
     let username = request.body.username;
     let password = request.body.password;
     // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRED
     try{
-        conn.collection("users").find({"username": username, "password": password})
+        conn.collection("users").find({"username": request.body.username})
                                             .toArray((err, results) => {
                                                 if (results.length==0){
                                                     console.log("No")
-                                                    response.render('pages/login')
+                                                    loggedin = "Register/Login";
+                                                    error="Username/Password Incorrect";
+                                                    response.render('pages/login', {loggedin:loggedin, error:error})
                                                 }
-                                                else if(passVerify(request)) {
+                                                else if(passVerify(password, results)&&results.length>0) {
                                                     console.log("Logged in: %s", results[0]["username"])
                                                     loggedin = "Profile";
                                                     response.render('pages/index', {loggedin:loggedin, test:test})
+                                                }
+                                                else{
+                                                    loggedin = "Register/Login";
+                                                    error="Username/Password Incorrect";
+                                                    response.render('pages/login', {loggedin:loggedin, error:error})
                                                 }
                                             });
                                             }
@@ -162,20 +154,21 @@ app.post('/auth', function(request, response) {
 });
 
 const bcrypt = require('bcryptjs')
-
-function encryptpass(request){
-    return bcrypt.hashSync(request.body.password2, 8)
+function encryptpass(passw){
+    var pass =bcrypt.hashSync(passw, 8)
+    return pass
 }
 
-function passVerify(request){
-    datab = conn.collection("users").find({"username": request.username}).toArray(err, results);
-    bcrypt.compare(request.password, datab[0]["password"], function (err, res){
-        if(err){
+async function passVerify(pass, datab) {
+    var encypt = await encryptpass(pass)
+    bcrypt.compare(encypt, datab[0]["password"], function (err, res) {
+        if (typeof err !== "undefined") {
             return false;
         }
-        if(res){
+        if (res) {
             return true;
         }
+        return false;
     })
 }
 function checkUserExists(username){
@@ -193,10 +186,11 @@ function checkUserExists(username){
     }
 }
 
+
 app.post('/signup', function(request, response){
     let username = request.body.username;
     let email = request.body.email;
-    let password = request.body.password2;
+    let password = request.body.password;
     let confirm = request.body.confirm_password;
     if (confirm===password && username && !checkUserExists(username)){
             db.user.create({"username":username,
