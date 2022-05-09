@@ -90,7 +90,14 @@ var upload = multer({
     fileFilter: (req, file, cb) => {fileFilter(req, file, cb)}
 })
 
-app.post('/makepost', upload.single('form'), async function(req, res){
+app.post('/makepost', async function(req, res){
+
+    desc = req.body.description;
+    title = req.body.title;
+    res.render('pages/uploadimage', {loggedin: loggedin, test: test});
+
+});
+app.post('/makepostimage', upload.single('form'), async function(req, res){
 
     if(!req.files)
     {
@@ -107,6 +114,7 @@ app.post('/makepost', upload.single('form'), async function(req, res){
             console.log("success");
         }
     });
+
     await db.post.create({
         "author": "",
         "title": title,
