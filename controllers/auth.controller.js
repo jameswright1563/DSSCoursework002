@@ -4,6 +4,9 @@ const User = db.user;
 const Role = db.role;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
+
+const local_strategy=require('passport-local').Strategy
+
 exports.signup = (req, res) => {
   const user = new User({
     username: req.body.username,

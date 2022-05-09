@@ -12,8 +12,9 @@ const Post = mongoose.model(
         roles: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Role"
-        }]
+        }],
+
 
 }
-));
+),"posts");
 module.exports = Post

@@ -10,35 +10,26 @@
     </section>
 
     <div align="left">
-        <img src="img/trollface.jpg" alt="Profile Picture" width="200" height="200">
+        <img src="./img/trollface.jpg" alt="Profile Picture" width="200" height="200">
     </div>
 
-    <div align="left">
-        <h3>
-            Change Profile Picture
-        </h3>
-        <form action="/action_page.php">
-            <label for="img">Select image:</label>
-            <input type="file" id="img" name="img" accept="image/*">
-            <input type="submit">
-        </form>
-    </div>
     <div class="posts">
         <table>
             <tbody>
             <tr>
                 <th>Your Username: </th>
-                <td>    insert username</td>
+                <td><%= username%></td>
             </tr>
             <tr>
                 <th>Your Email Address: </th>
-                <td>    insert email</td>
+                <td><%= email%>></td>
             </tr>
             <tr>
             </tr>
             </tbody>
         </table>
     </div>
+    <a href="/logout">Log out</a>
 
 </div>
 

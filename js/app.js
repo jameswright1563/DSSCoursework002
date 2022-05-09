@@ -1,5 +1,14 @@
+const db = require("../db");
+var test
+async function getPosts(){
+    await db.Post.find({}).then(post => {
+        test=post
+    })
+}
 function likedislike(x) {
     x.classList.toggle("fa-thumbs-down");
+    console.log("yes")
+    getPosts().then(    db.Post.findOneAndUpdate({title:test[i]["title"], description:test[i]["description"]},{likes:test[i]["likes"]+=1}))
 }
 
 function testFunction(){

@@ -12,6 +12,7 @@
             <% for(var i=0; i<test.length; i++) { %>
                 <div class="posts">
                     <h3 align="center"><%= test[i].title%></h3>
+                    <p>Written by <%= test[i].author%> </p>
                     <%if(locals.test[i].img){%>
                     <img src="data:image/<%=test[i].img.contentType%>;base64,
                      <%=test[i].img.data.toString('base64')%>">
@@ -19,7 +20,11 @@
                     <p><%= test[i].description%></p>
                     <hr class="rounded1">
                     <i onclick="likedislike(this)" class="fa fa-thumbs-up"></i>
-                    <i onclick="comments(this)"></i>
+                    <a href="/editpost/?id=<%=i%>">Edit</a>
+                    <script>
+                        var postNumber = i;
+                    </script>
+                    <a href="/deletepost">Delete</a>
                 </div>
                 <br>
             <% } %>
