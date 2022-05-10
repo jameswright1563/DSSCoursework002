@@ -12,7 +12,11 @@ function likedislike(x) {
 }
 
 function profilePicture(x){
-    //x.style.display = "none";
+    if(x.src === "https://i.imgur.com/eMQHsNk.png"){
+        x.style.display  = "none";
+    }else{
+        x.style.display = "inline";
+    }
 }
 
 function myFunction() {

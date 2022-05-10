@@ -29,7 +29,7 @@ let authFn = (req, res) => {
         loggedin = "Profile"
         return true
     } else {
-        profilePicture = "";
+        profilePicture = "https://i.imgur.com/eMQHsNk.png";
         loggedin = "Register/Login"
         return false
     }
@@ -86,7 +86,7 @@ router.post('/auth', function(request, response) {
                 if (user) {
                     currentUser = user
                     if (!passVerify(password, user)) {
-                        profilePicture = "";
+                        profilePicture = "https://i.imgur.com/eMQHsNk.png";
                         loggedin = "Register/Login";
                         let error = "Username/Password Incorrect";
                         response.render('pages/login', {loggedin: loggedin, error: error})
@@ -120,7 +120,7 @@ router.get('/logout', async (req, res, next) => {
         req.session.destroy() // Delete session
         res.clearCookie('session-id') // delete cookie
         loggedin = "Register/Login"
-        profilePicture = "";
+        profilePicture = "https://i.imgur.com/eMQHsNk.png";
         res.render("pages/index", {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture})
     } else {
         var err = new Error('you are not logged in!')
