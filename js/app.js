@@ -11,8 +11,8 @@ function likedislike(x) {
     getPosts().then(    db.Post.findOneAndUpdate({title:test[i]["title"], description:test[i]["description"]},{likes:test[i]["likes"]+=1}))
 }
 
-function testFunction(){
-    console.log("Test Function")
+function profilePicture(x){
+    //x.style.display = "none";
 }
 
 function myFunction() {
@@ -39,5 +39,4 @@ function mongoose() {
     });
 
 }
-
 

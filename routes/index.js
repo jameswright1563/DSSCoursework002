@@ -12,6 +12,7 @@ const User = db.user
 var posts;
 let currentUser;
 var currentPost;
+var profilePicture;
 
 async function getPosts(){
     await db.Post.find({}).then(post => {
@@ -24,9 +25,11 @@ let authFn = (req, res) => {
     if (req.session.auth) {
         currentSession=req.session
         console.log(req.session)
+        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         loggedin = "Profile"
         return true
     } else {
+        profilePicture = "";
         loggedin = "Register/Login"
         return false
     }
@@ -53,17 +56,21 @@ router.get('^/$|/index', async (req, res) => {
         if (authFn(req, res)) {
             console.log("User logged in: %s", req.session.username)
         }
-        res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:""})
+        res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:"", profilePicture: profilePicture})
     })
 
 
 })
 
+router.get('/getprofilepicture', function(req ,res){
+
+});
+
 router.get('/login', function(req, res){
-    if(loggedin == "Profile"){
-        res.render('pages/profile', {loggedin: loggedin, error:"",email:req.session.email, username:req.session.username });
+    if(req.session.auth){
+        res.render('pages/profile', {loggedin: loggedin, error:"",email:req.session.email, username:req.session.username , profilePicture:profilePicture});
     }else{
-        res.render('pages/login', {loggedin: loggedin, posts:posts, error:""});
+        res.render('pages/login', {loggedin: loggedin, posts:posts, error:"", profilePicture:profilePicture});
     }
 });
 router.post('/auth', function(request, response) {
@@ -75,10 +82,11 @@ router.post('/auth', function(request, response) {
         response.statusCode = 200
         response.send('You are already authenticated')
     } else {
-            User.findOne({username: request.body.username}).then(user => {
+            User.findOne({username: request.body.username}).then(async user => {
                 if (user) {
                     currentUser = user
                     if (!passVerify(password, user)) {
+                        profilePicture = "";
                         loggedin = "Register/Login";
                         let error = "Username/Password Incorrect";
                         response.render('pages/login', {loggedin: loggedin, error: error})
@@ -87,11 +95,20 @@ router.post('/auth', function(request, response) {
                         request.session.username = user.username
                         request.session.auth = true // Logon success setting marked true
                         response.statusCode = 200
+                        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
                         loggedin = "Profile";
-                        response.render('pages/index', {loggedin: loggedin, posts: posts, error:""})
+                        await getPosts().then(post => {
+                            response.render('pages/index', {
+                                loggedin: loggedin,
+                                posts: posts,
+                                error: "",
+                                profilePicture: profilePicture
+                            })
+                        });
                     }
 
-            }})
+                }
+            })
             // }).catch(err => next(err))
         }});
     // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRE
@@ -103,7 +120,8 @@ router.get('/logout', async (req, res, next) => {
         req.session.destroy() // Delete session
         res.clearCookie('session-id') // delete cookie
         loggedin = "Register/Login"
-        res.render("pages/index", {loggedin: loggedin, posts: posts, error:""})
+        profilePicture = "";
+        res.render("pages/index", {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture})
     } else {
         var err = new Error('you are not logged in!')
         err.status = 403
@@ -141,7 +159,7 @@ router.get("/deletepost", async function (req, res) {
             res.render("pages/index", {
                 loggedin: loggedin,
                 posts: posts,
-                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
+                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER", profilePicture:profilePicture
             })
         }
     })
@@ -168,13 +186,13 @@ router.get("/editpost", async function (req, res) {
             res.render("pages/editpost", {
                 loggedin: loggedin,
                 title: currentPost["title"],
-                description: currentPost["description"]
+                description: currentPost["description"], profilePicture:profilePicture
             })
         } else {
             res.render("pages/index", {
                 loggedin: loggedin,
                 posts: posts,
-                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
+                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER", profilePicture:profilePicture
             })
         }
     })
@@ -238,6 +256,7 @@ router.post('/signup', async function (request, response) {
         request.session.auth = true // Logon success setting marked true
         response.statusCode = 200
         loggedin = "Profile";
+        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:""}))
     }
 })
@@ -246,7 +265,7 @@ router.post('/makepost', async function(req, res){
     authFn(req,res)
     description = req.body.description;
     title = req.body.title;
-    res.render('pages/uploadimage', {loggedin: loggedin});
+    res.render('pages/uploadimage', {loggedin: loggedin, profilePicture:profilePicture});
 
 });
 router.post('/makepostimage', upload.single('form'), async function(req, res){
@@ -276,7 +295,7 @@ router.post('/makepostimage', upload.single('form'), async function(req, res){
         },
         "description": description,
     })
-    await getPosts().then(post=>res.render('pages/index', {loggedin: loggedin, posts:post, error:""}));
+    await getPosts().then(post=>res.render('pages/index', {loggedin: loggedin, posts:post, error:"", profilePicture:profilePicture}));
 
 
 });
@@ -284,11 +303,12 @@ router.post('/makepostimage', upload.single('form'), async function(req, res){
 router.get('/createpost', function(req, res){
     if(authFn(req,res,next)) {
         loggedin = "Profile"
+        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         res.render('pages/createpost', {loggedin: loggedin, title: "",
-            description: ""});
+            description: "", profilePicture:profilePicture});
     }
     else{
-        res.render('pages/login', {loggedin: loggedin, error:""});
+        res.render('pages/login', {loggedin: loggedin, error:"", profilePicture:profilePicture});
 
     }
 });
