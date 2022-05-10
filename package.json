@@ -17,6 +17,7 @@
     "formidable": "^2.0.1",
     "grecaptcha": "^1.0.3",
     "gridfs-stream": "^1.1.1",
+    "helmet": "^5.0.2",
     "jsdom": "^19.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.5.0",

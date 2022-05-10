@@ -8,6 +8,7 @@ const multer = require('multer')
 const fileupload = require("express-fileupload");
 const Grid = require("gridfs-stream");
 const bodyParser = require('body-parser')
+const helmet = require('helmet')
 let passport = require('passport')
 let cookie_parser=require('cookie-parser')
 app.use(cookie_parser('1234'))
@@ -24,6 +25,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileupload());
 app.use('/uploads', express.static('uploads'))
 app.set('view engine', 'ejs');
+app.use('/', require('./routes/index'))
+app.use('/pages', require('./routes/index'))
+app.use('/css',express.static('css'))
+app.use('/js',express.static('js'))
 app.use(session({
     store: new File_Store(),
     secret: 'hello world',
@@ -32,33 +37,13 @@ app.use(session({
 }))
 app.use(express.static(path.join(__dirname, 'static')));
 
-app.use('/html',express.static('html'));
-app.use('/img',express.static('img'));
-app.use('/css', express.static('css'));
-app.use('/js', express.static('js'));
-var loggedin = "Register/Login"
-var posts = [];
-var db = require("./db.js");
-const Role = db.role;
-//Get data from database for posts and put in a variable to send to the page.
-const conn = mongoose.connection;
 
-
-
-
-
-
-app.use('/', require('./routes/index'))
-app.use('/pages', require('./routes/index'))
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
-
-import * as helmet from "helmet";
-
 app.use(helmet.xssFilter());                // disables browsers' buggy cross-site scripting filter by setting the X-XSS-Protection header to 0
 app.use(helmet.contentSecurityPolicy());    // sets the Content-Security-Policy header which helps mitigate cross-site scripting attacks, among other things
 app.use(helmet.hsts());                     // tells browsers to prefer HTTPS over insecure HTTP
