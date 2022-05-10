@@ -14,9 +14,10 @@ app.use(cookie_parser('1234'))
 let session = require('express-session')
 var cookieSession = require('cookie-session');
 let File_Store = require('session-file-store')(session)
+const helmet = require("helmet");
 let next = require("next")
 let auth = require("./routes/auth.routes")
-
+app.use(helmet())
 //
 let gfs;
 app.use(bodyParser.json());
