@@ -50,19 +50,14 @@
                     <i class="fa fa-check"></i>
                 </label>
                 <input type="password"  name="confirm_password" placeholder="Confirm Password" id="confirm_password" required>
+                <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+                <div class="g-recaptcha" data-sitekey="6Ldn49ofAAAAAPb6Z9JgddNpaD2lqKx6tD816St4" id="signupcaptcha"></div>
+
                 <input type="submit" value="Sign Up">
             </form>
         </div>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-    <div class="g-recaptcha" data-sitekey="6Ldn49ofAAAAAPb6Z9JgddNpaD2lqKx6tD816St4"></div>
-    <script src="https://www.google.com/recaptcha/enterprise.js?render=6Ldn49ofAAAAAPb6Z9JgddNpaD2lqKx6tD816St4"></script>
-    <script>
-        grecaptcha.enterprise.ready(function() {
-            grecaptcha.enterprise.execute('6Ldn49ofAAAAAPb6Z9JgddNpaD2lqKx6tD816St4', {action: 'login'}).then(function(token) {
-            ...
-            });
-        });
-    </script>
+
 
 
 </div>

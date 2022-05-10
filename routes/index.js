@@ -9,6 +9,8 @@ const path = require('path')
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const fs = require("fs");
+const grecaptcha = require("grecaptcha");
+const {response} = require("express");
 const User = db.user
 //register page
 
@@ -76,33 +78,26 @@ router.post('/auth', function(request, response) {
         response.statusCode = 200
         response.send('You are already authenticated')
     } else {
-        conn.collection("users").findOne({username: request.body.username}).then(user => {
-            if (user) {
-                currentUser = user
-                if (!passVerify(password, user)) {
-                    loggedin = "Register/Login";
-                    let error = "Username/Password Incorrect";
-                    response.render('pages/login', {loggedin: loggedin, error: error})
-                } else {
-                    request.session.email = user.email
-                    request.session.username = user.username
-                    request.session.auth = true // Logon success setting marked true
-                    response.statusCode = 200
-                    loggedin = "Profile";
-                    response.render('pages/index', {loggedin: loggedin, posts: posts, error:""})
-                }
+            User.findOne({username: request.body.username}).then(user => {
+                if (user) {
+                    currentUser = user
+                    if (!passVerify(password, user)) {
+                        loggedin = "Register/Login";
+                        let error = "Username/Password Incorrect";
+                        response.render('pages/login', {loggedin: loggedin, error: error})
+                    } else {
+                        request.session.email = user.email
+                        request.session.username = user.username
+                        request.session.auth = true // Logon success setting marked true
+                        response.statusCode = 200
+                        loggedin = "Profile";
+                        response.render('pages/index', {loggedin: loggedin, posts: posts, error:""})
+                    }
 
-            } else { // No user specified
-                var err = new Error(`User ${request.body.username} does not exist!`)
-                err.status = 403
-            }
+            }})
             // }).catch(err => next(err))
-        }).catch(err => {
-            console.log(err)
-        })
-    }
+        }});
     // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRE
-});
 
 router.get('/logout', async (req, res, next) => {
     posts = await getPosts()
@@ -116,6 +111,23 @@ router.get('/logout', async (req, res, next) => {
         var err = new Error('you are not logged in!')
         err.status = 403
         next(err)
+    }
+})
+router.get("/deletepost", async function (req, res) {
+    if (req.session.username === posts[req.query.id].author && req.session.auth === true) {
+        currentPost = posts[req.query.id]
+        await db.Post.deleteOne(currentPost).then(err => {
+            if (err) {
+                console.log("Post %s deleted", currentPost["title"])
+                res.redirect("/index")
+            }
+        })
+    } else {
+        res.render("pages/index", {
+            loggedin: loggedin,
+            posts: posts,
+            error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
+        })
     }
 })
 router.get("/editpost", function (req,res){
