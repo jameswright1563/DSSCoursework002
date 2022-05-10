@@ -6,7 +6,8 @@ const path = require('path')
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
-const fs = require("fs");const {response} = require("express");
+const fs = require("fs");
+const {response} = require("express");
 const User = db.user
 //register page
 
@@ -14,7 +15,7 @@ var posts;
 let currentUser;
 var currentPost;
 var profilePicture;
-
+var pagename;
 async function getPosts(){
     await db.Post.find({}).then(post => {
         posts= post
@@ -53,11 +54,12 @@ async function passVerify(pass, datab) {
     })
 }
 router.get('^/$|/index', async (req, res) => {
+    pagename="index"
     posts = await getPosts().then(posts=>{
         if (authFn(req, res)) {
             console.log("User logged in: %s", req.session.username)
         }
-        res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:"", profilePicture: profilePicture})
+        res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:"", profilePicture: profilePicture, page_name:pagename})
     })
 
 
@@ -68,14 +70,15 @@ router.get('/getprofilepicture', function(req ,res){
 });
 
 router.get('/login', function(req, res){
+    pagename="login"
     if(req.session.auth){
-        res.render('pages/profile', {loggedin: loggedin, error:"",email:req.session.email, username:req.session.username , profilePicture:profilePicture});
+        res.render('pages/profile', {loggedin: loggedin, error:"",email:req.session.email, username:req.session.username , profilePicture:profilePicture, page_name:pagename});
     }else{
-        res.render('pages/login', {loggedin: loggedin, posts:posts, error:"", profilePicture:profilePicture});
+        res.render('pages/login', {loggedin: loggedin, posts:posts, error:"", profilePicture:profilePicture,page_name:pagename});
     }
 })
-
-function authenticateEmail(email){
+var emailText = bcrypt.hashSync('123', 8)
+async function authenticateEmail(req, email) {
     var emailAccount = nodemailer.createTransport({ //this sets up the email account to send an email from
         service: 'gmail',
         auth: {
@@ -87,18 +90,42 @@ function authenticateEmail(email){
         from: 'dssug17@gmail.com',
         to: email,
         subject: 'Authentication code',
-        text: '123'
+        text: emailText
     };
-    emailAccount.sendMail(emailDestination, function (error, info){
-        if (error){
+    await emailAccount.sendMail(emailDestination, async function (error, info) {
+        if (error) {
             console.log(error);
-        }
-        else {
+        } else {
             console.log("Email send: " + info.response);
+
         }
-    });
+    })
+
 
 }
+
+router.post("/authenticatecode", async function (request, response) {
+    pagename="login"
+    var authcode = bcrypt.hashSync(request.body.authcode, 8);
+    if (bcrypt.compare(emailText, authcode)) {
+        request.session.fa = true
+        request.session.auth = true // Logon success setting marked true
+        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
+        loggedin = "Profile";
+        await getPosts().then(post => {
+            response.render('pages/index', {
+                loggedin: loggedin,
+                posts: posts,
+                error: "",
+                profilePicture: profilePicture,
+                page_name:pagename
+            })
+        });
+    } else {
+        error = "Wrong code!"
+        response.redirect("/login")
+    }
+});
 
 router.post('/auth', function(request, response) {
     // Capture the input fields
@@ -118,21 +145,13 @@ router.post('/auth', function(request, response) {
                         let error = "Username/Password Incorrect";
                         response.render('pages/login', {loggedin: loggedin, error: error})
                     } else {
-                        authenticateEmail();
                         request.session.email = user.email
                         request.session.username = user.username
-                        request.session.auth = true // Logon success setting marked true
-                        response.statusCode = 200
-                        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
-                        loggedin = "Profile";
-                        await getPosts().then(post => {
-                            response.render('pages/index', {
-                                loggedin: loggedin,
-                                posts: posts,
-                                error: "",
-                                profilePicture: profilePicture
-                            })
-                        });
+
+                        await authenticateEmail(request, request.session.email)
+                        profilePicture=""
+                        pagename="login"
+                        response.render("pages/authenticate", {loggedin:loggedin,error: "",profilePicture:"",page_name:pagename})
                     }
 
                 }
@@ -143,13 +162,13 @@ router.post('/auth', function(request, response) {
 
 router.get('/logout', async (req, res, next) => {
     posts = await getPosts()
-
+    pagename="index"
     if (req.session) {
         req.session.destroy() // Delete session
         res.clearCookie('session-id') // delete cookie
         loggedin = "Register/Login"
         profilePicture = "https://i.imgur.com/eMQHsNk.png";
-        res.render("pages/index", {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture})
+        res.render("pages/index", {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture,page_name:pagename})
     } else {
         var err = new Error('you are not logged in!')
         err.status = 403
@@ -157,11 +176,12 @@ router.get('/logout', async (req, res, next) => {
     }
 })
 
-var description, image;
+var description;
 router.post("/textedit", function (req, res){
     title =  req.body.description;
     description = req.body.description;
-    res.render("pages/editimage", {loggedin:loggedin})
+    pagename="createpost"
+    res.render("pages/editimage", {loggedin:loggedin,page_name:pagename})
 })
 var storage = multer.diskStorage({
     destination: function(req,file,cb){
@@ -174,6 +194,7 @@ var storage = multer.diskStorage({
     }
 })
 router.get("/deletepost", async function (req, res) {
+    pagename="index"
     await getPosts().then(posts=>{
         if (req.session.username === posts[req.query.ide].author && req.session.auth === true) {
             currentPost = posts[req.query.ide]
@@ -208,19 +229,21 @@ function fileFilter(req,res,cb) {
 }
 
 router.get("/editpost", async function (req, res) {
+    pagename="index"
     posts = await getPosts().then(posts => {
         if (req.session.username === posts[req.query.id].author && req.session.auth === true) {
             currentPost = posts[req.query.id]
             res.render("pages/editpost", {
                 loggedin: loggedin,
                 title: currentPost["title"],
-                description: currentPost["description"], profilePicture:profilePicture
+                description: currentPost["description"], profilePicture:profilePicture,page_name:pagename
             })
         } else {
             res.render("pages/index", {
                 loggedin: loggedin,
                 posts: posts,
-                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER", profilePicture:profilePicture
+                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER", profilePicture:profilePicture,
+                page_name:pagename
             })
         }
     })
@@ -248,7 +271,8 @@ router.post("/editpostimage", upload.single("form"),async function (req, res) {
         "img": {
             data: file.data,
             contentType: file.mimetype,
-            filename: file.name
+            filename: file.name,
+            page_name:pagename
         },
         "description": description,
     })
@@ -285,18 +309,26 @@ router.post('/signup', async function (request, response) {
         response.statusCode = 200
         loggedin = "Profile";
         profilePicture = "https://i.imgur.com/5jgN0Q9.png";
-        await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:""}))
+        pagename="index"
+        await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:"", page_name:pagename}))
+    }
+    else{
+        page_name="login"
+        response.redirect("/login")
     }
 })
 
 router.post('/makepost', async function(req, res){
+    pagename="createpost"
     authFn(req,res)
     description = req.body.description;
     title = req.body.title;
-    res.render('pages/uploadimage', {loggedin: loggedin, profilePicture:profilePicture});
+    res.render('pages/uploadimage', {loggedin: loggedin, profilePicture:profilePicture,page_name:pagename});
 
 });
 router.post('/makepostimage', upload.single('form'), async function(req, res){
+    pagename="createpost"
+
     if(!req.files)
     {
         console.log("No files were uploaded")
@@ -323,20 +355,23 @@ router.post('/makepostimage', upload.single('form'), async function(req, res){
         },
         "description": description,
     })
-    await getPosts().then(post=>res.render('pages/index', {loggedin: loggedin, posts:post, error:"", profilePicture:profilePicture}));
+    await getPosts().then(post=>res.render('pages/index', {loggedin: loggedin, posts:post, error:"", profilePicture:profilePicture,page_name:pagename}));
 
 
 });
 
 router.get('/createpost', function(req, res){
+    pagename="createpost"
+
     if(authFn(req,res,next)) {
         loggedin = "Profile"
         profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         res.render('pages/createpost', {loggedin: loggedin, title: "",
-            description: "", profilePicture:profilePicture});
+            description: "", profilePicture:profilePicture,    page_name:pagename
+        });
     }
     else{
-        res.render('pages/login', {loggedin: loggedin, error:"", profilePicture:profilePicture});
+        res.render('pages/login', {loggedin: loggedin, error:"", profilePicture:profilePicture, page_name:pagename});
 
     }
 });

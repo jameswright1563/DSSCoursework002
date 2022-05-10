@@ -13,11 +13,8 @@ let passport = require('passport')
 let cookie_parser=require('cookie-parser')
 app.use(cookie_parser('1234'))
 let session = require('express-session')
-var cookieSession = require('cookie-session');
 let File_Store = require('session-file-store')(session)
 const helmet = require("helmet");
-let next = require("next")
-let auth = require("./routes/auth.routes")
 app.use(helmet())
 //
 let gfs;
@@ -28,9 +25,14 @@ app.use('/uploads', express.static('uploads'))
 app.set('view engine', 'ejs');
 app.use(session({
     store: new File_Store(),
-    secret: 'hello world',
+    secret: "1234",
     resave: true,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    httpOnly: true,
+    cookie: {
+        expires: Date(Date.now + Date(3600000)),
+        maxAge:  3600000
+    }
 }))
 app.use(express.static(path.join(__dirname, 'static')));
 

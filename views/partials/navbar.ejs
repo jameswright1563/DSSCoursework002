@@ -1,7 +1,9 @@
 <div class="topnav" id="myTopnav">
-    <a href="/login"><%=loggedin%><img onload="profilePicture(this)" src="<%=profilePicture%>" id="navbar-img" alt="Profile Picture" width="40" height="40"></a>
-    <a href="/" class="active">Home</a>
-    <a href="/createpost" onclick="testFunction()">Create A post</a>
+
+    <a href="/login" <% if (page_name === 'login') { %>class="active" <% }%>> <%=loggedin%><img onload="profilePicture(this)" src="<%=profilePicture%>" id="navbar-img" alt="Profile Picture" width="40" height="40"></a>
+
+    <a href="/" <% if (page_name === 'index') { %>class="active" <% } %> >Home</a>
+    <a href="/createpost" onclick="testFunction()"      <% if (page_name === 'createpost') { %>class="active" <% } %>>Create A post</a>
     <a href="javascript:void(0);" class="icon" onclick="myFunction()">
         <i class="fa fa-bars"></i>
     </a>
