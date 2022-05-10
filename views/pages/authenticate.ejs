@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <%- include('../partials/navbar', {loggedin:loggedin, profilePicture:profilePicture}); %>
+        <section>
+            <h1 align="center">Food Blog</h1>
+        </section>
+    <p><%= error%></p>
+    <form>
+        <label for="fname">AUTH CODE:</label><br>
+        <input type="text" id="authcode" name="authcode"><br>
+    </form>
+</div>
+
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+
+</body>
+</html>
