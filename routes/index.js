@@ -1,16 +1,11 @@
 const express = require('express');
-const auth = require("./auth.routes");
 const next = require("next");
 const db = require("../db");
-const server = require("../server")
 const router  = express.Router();
-const conn = db.mongoose.connection
 const path = require('path')
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
-const fs = require("fs");
-const grecaptcha = require("grecaptcha");
-const {response} = require("express");
+const fs = require("fs");const {response} = require("express");
 const User = db.user
 //register page
 
@@ -54,11 +49,13 @@ async function passVerify(pass, datab) {
     })
 }
 router.get('^/$|/index', async (req, res) => {
-    posts = await getPosts()
-    if (authFn(req, res)) {
-        console.log("User logged in: %s", req.session.username)
-    }
-    res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:""})
+    posts = await getPosts().then(posts=>{
+        if (authFn(req, res)) {
+            console.log("User logged in: %s", req.session.username)
+        }
+        res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:""})
+    })
+
 
 })
 
@@ -113,39 +110,7 @@ router.get('/logout', async (req, res, next) => {
         next(err)
     }
 })
-router.get("/deletepost", async function (req, res) {
-    if (req.session.username === posts[req.query.id].author && req.session.auth === true) {
-        currentPost = posts[req.query.id]
-        await db.Post.deleteOne(currentPost).then(err => {
-            if (err) {
-                console.log("Post %s deleted", currentPost["title"])
-                res.redirect("/index")
-            }
-        })
-    } else {
-        res.render("pages/index", {
-            loggedin: loggedin,
-            posts: posts,
-            error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
-        })
-    }
-})
-router.get("/editpost", function (req,res){
-    if (req.session.username === posts[req.query.id]["author"] && req.session.auth === true) {
-        currentPost = posts[req.query.id]
-        res.render("pages/editpost", {
-            loggedin: loggedin,
-            title: currentPost["title"],
-            description: currentPost["description"]
-        })
-    } else {
-        res.render("pages/index", {
-            loggedin: loggedin,
-            posts: posts,
-            error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
-        })
-    }
-})
+
 var description, image;
 router.post("/textedit", function (req, res){
     title =  req.body.description;
@@ -162,14 +127,31 @@ var storage = multer.diskStorage({
         cb(null, Date.now()+file.originalname)
     }
 })
-var title;
-var desc;
+router.get("/deletepost", async function (req, res) {
+    await getPosts().then(posts=>{
+        if (req.session.username === posts[req.query.ide].author && req.session.auth === true) {
+            currentPost = posts[req.query.ide]
+            db.Post.deleteOne(currentPost).then(err => {
+                if (err) {
+                    console.log("Post %s deleted", currentPost["title"])
+                    res.redirect("/index")
+                }
+            })
+        } else {
+            res.render("pages/index", {
+                loggedin: loggedin,
+                posts: posts,
+                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
+            })
+        }
+    })
+})
 var upload = multer({
     storage:storage,
     fileFilter: (req, file, cb) => {fileFilter(req, file, cb)}
 })
 function fileFilter(req,res,cb) {
-    if(file.mimetype === "image/jpeg"||file.mimetype ==='image/png'||file.mimetype ==='image/webp'){
+    if(file.mimetype === "image/jpeg"||file.mimetype ==='image/png'||file.mimetype ==='image/webp'||file.mimetype==='image/jpg'){
 
         cb(null, true);
     }
@@ -178,6 +160,25 @@ function fileFilter(req,res,cb) {
         cb(null,false);
     }
 }
+
+router.get("/editpost", async function (req, res) {
+    posts = await getPosts().then(posts => {
+        if (req.session.username === posts[req.query.id].author && req.session.auth === true) {
+            currentPost = posts[req.query.id]
+            res.render("pages/editpost", {
+                loggedin: loggedin,
+                title: currentPost["title"],
+                description: currentPost["description"]
+            })
+        } else {
+            res.render("pages/index", {
+                loggedin: loggedin,
+                posts: posts,
+                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER"
+            })
+        }
+    })
+})
 
 router.post("/editpostimage", upload.single("form"),async function (req, res) {
     if (!req.files) {
@@ -189,17 +190,17 @@ router.post("/editpostimage", upload.single("form"),async function (req, res) {
     const file = req.files.image;
 
     const paths = path.join(__dirname, '..','uploads', String(file.name));
-    file.mv(paths, (err) => {
+    await file.mv(paths, (err) => {
         if (err) {
             console.log("success");
         }
     });
-
+    await console.log(fs.readFileSync(paths))
     await db.Post.findOneAndUpdate({currentPost}, {
         "author": req.session.username,
         "title": title,
         "img": {
-            data: fs.readFileSync(paths),
+            data: file.data,
             contentType: file.mimetype,
             filename: file.name
         },
@@ -237,7 +238,7 @@ router.post('/signup', async function (request, response) {
         request.session.auth = true // Logon success setting marked true
         response.statusCode = 200
         loggedin = "Profile";
-        await getPosts().then(response.render('pages/index', {loggedin: loggedin, posts: posts, error:""}))
+        await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:""}))
     }
 })
 
@@ -259,7 +260,7 @@ router.post('/makepostimage', upload.single('form'), async function(req, res){
     const file = req.files.image;
 
     const paths = path.join(__dirname, '..','uploads', String(file.name));
-    file.mv(paths, (err) => {
+    await file.mv(paths, (err) => {
         if (err) {
             console.log("success");
         }
@@ -269,13 +270,13 @@ router.post('/makepostimage', upload.single('form'), async function(req, res){
         "author": req.session.username,
         "title": title,
         "img": {
-            data: fs.readFileSync(paths),
+            data: file.data,
             contentType: file.mimetype,
             filename: file.name
         },
         "description": description,
     })
-    await getPosts().then(res.render('pages/index', {loggedin: loggedin, posts:posts, error:""}));
+    await getPosts().then(post=>res.render('pages/index', {loggedin: loggedin, posts:post, error:""}));
 
 
 });
