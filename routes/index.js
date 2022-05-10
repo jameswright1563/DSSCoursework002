@@ -311,7 +311,7 @@ router.post('/signup', async function (request, response) {
         loggedin = "Profile";
         profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         pagename="index"
-        await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:"", page_name:pagename}))
+        await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:"", page_name:pagename, profilePicture: profilePicture}))
     }
     else{
         page_name="login"
