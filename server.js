@@ -57,5 +57,10 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+import * as helmet from "helmet";
 
+app.use(helmet.xssFilter());                // disables browsers' buggy cross-site scripting filter by setting the X-XSS-Protection header to 0
+app.use(helmet.contentSecurityPolicy());    // sets the Content-Security-Policy header which helps mitigate cross-site scripting attacks, among other things
+app.use(helmet.hsts());                     // tells browsers to prefer HTTPS over insecure HTTP
+app.use(helmet.ieNoOpen());                 // forces potentially-unsafe downloads to be saved, mitigating execution of HTML in the site's context
 

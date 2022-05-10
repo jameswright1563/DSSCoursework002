@@ -27,6 +27,7 @@
     "next": "^12.1.6",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
-    "session-file-store": "^1.5.0"
+    "session-file-store": "^1.5.0",
+    "xss-filters": "^1.2.7"
   }
 }
