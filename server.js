@@ -3,6 +3,7 @@ const express = require("express");
 const path = require('path')
 const app = express();
 const mongoose = require("mongoose")
+var nodemailer = require("nodemailer");
 const fs = require('fs')
 const multer = require('multer')
 const fileupload = require("express-fileupload");
@@ -45,9 +46,28 @@ const Role = db.role;
 const conn = mongoose.connection;
 
 
+var emailAccount = nodemailer.createTransport({ //this sets up the email account to send an email from
+    service: 'gmail',
+    auth: {
+        user: 'dssug17@gmail.com',
+        pass: 'abc489GHJ'
+    }
+});
 
-
-
+var emailDestination = {
+    from: 'dssug17@gmail.com',
+    to: 'george@theoutlands.co.uk',
+    subject: 'Thank you!',
+    text: 'test'
+};
+emailAccount.sendMail(emailDestination, function (error, info){
+    if (error){
+        console.log(error);
+    }
+    else {
+        console.log("Email send: " + info.response);
+    }
+});
 
 app.use('/', require('./routes/index'))
 app.use('/pages', require('./routes/index'))

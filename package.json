@@ -26,6 +26,7 @@
     "multer-gridfs-storage": "^5.0.2",
     "mysql": "^2.18.1",
     "next": "^12.1.6",
+    "nodemailer": "^6.7.5",
     "passport": "^0.5.2",
     "passport-local": "^1.0.0",
     "session-file-store": "^1.5.0",
