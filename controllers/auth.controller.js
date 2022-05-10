@@ -1,5 +1,5 @@
 const config = require("../config/auth.config");
-const db = require("../models");
+const db = require("../db");
 const User = db.user;
 const Role = db.role;
 var jwt = require("jsonwebtoken");
@@ -56,22 +56,15 @@ exports.signup = (req, res) => {
     }
   });
 };
-exports.signin = (req, res) => {
+exports.login = (req, res) => {
   User.findOne({
     username: req.body.username
-  })
-    .populate("roles", "-__v")
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ message: err });
-        return;
-      }
-      if (!user) {
-        return res.status(404).send({ message: "User Not found." });
-      }
-      var passwordIsValid = bcrypt.compareSync(
-        req.body.password,
-        user.password
+  }).then(user => {
+      if (user) {
+
+        var passwordIsValid = bcrypt.compareSync(
+            req.body.password,
+            user.password
       );
       if (!passwordIsValid) {
         return res.status(401).send({

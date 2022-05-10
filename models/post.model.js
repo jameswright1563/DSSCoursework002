@@ -6,7 +6,8 @@ const Post = mongoose.model(
         title: String,
         img: {
             data: Buffer,
-            contentType: String
+            contentType: String,
+            filename: String
         },
         description: String,
         roles: [{

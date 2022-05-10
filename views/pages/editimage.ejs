@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body  class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+    <%- include('../partials/navbar', {loggedin:loggedin}); %>
+    <section>
+        <h1 align="center">Edit post - Upload Your Image</h1>
+    </section>
+
+    <div class="createpost">
+        <form action="/editpostimage" method="post" id="form" name="form" enctype="multipart/form-data">
+            <label for="title">
+                <!-- font awesome icon -->
+                <i class="fab fa-adversal"></i>
+            </label>
+            <label for="image">Upload Image</label>
+            <input type="file" id="image" name="image" required>
+            <input type="submit" value="Upload post">
+        </form>
+    </div>
+
+</div>
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+</body>
+</html>

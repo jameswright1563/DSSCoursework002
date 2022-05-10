@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body  class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+        <%- include('../partials/navbar', {loggedin:loggedin}); %>
+        <section>
+            <h1 align="center">Edit post</h1>
+        </section>
+
+        <div class="createpost">
+            <form action="/textedit" method="post" id="form" name="form" enctype="application/x-www-form-urlencoded">
+                <label for="title">
+                    <!-- font awesome icon -->
+                    <i class="fab fa-adversal"></i>
+                </label>
+
+                <input type="text" name="title" placeholder="Title" id="title" required value =<%= title%>>
+                <br>
+                <label for="description">
+                    <i class="fa fa-paper-plane"></i>
+                </label>
+
+                <input type="text"  name="description" placeholder="Description" id="description" required value=<%= description%> ></input>
+                <br>
+                <input type="submit" value="Next Page">
+            </form>
+        </div>
+
+    </div>
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+</body>
+</html>
