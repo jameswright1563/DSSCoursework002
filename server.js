@@ -3,7 +3,6 @@ const express = require("express");
 const path = require('path')
 const app = express();
 const mongoose = require("mongoose")
-var nodemailer = require("nodemailer");
 const fs = require('fs')
 const multer = require('multer')
 const fileupload = require("express-fileupload");
@@ -17,7 +16,6 @@ let File_Store = require('session-file-store')(session)
 const helmet = require("helmet");
 app.use(helmet())
 //
-let gfs;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileupload());

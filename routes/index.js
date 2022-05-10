@@ -8,6 +8,7 @@ const multer = require("multer");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
 const {response} = require("express");
+
 const User = db.user
 //register page
 
@@ -107,7 +108,7 @@ async function authenticateEmail(req, email) {
 router.post("/authenticatecode", async function (request, response) {
     pagename="login"
     var authcode = bcrypt.hashSync(request.body.authcode, 8);
-    if (bcrypt.compare(emailText, authcode)) {
+    if (bcrypt.compareSync(emailText, authcode)) {
         request.session.fa = true
         request.session.auth = true // Logon success setting marked true
         profilePicture = "https://i.imgur.com/5jgN0Q9.png";
