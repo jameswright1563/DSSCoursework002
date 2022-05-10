@@ -5,6 +5,7 @@ const router  = express.Router();
 const path = require('path')
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
+const nodemailer = require("nodemailer");
 const fs = require("fs");const {response} = require("express");
 const User = db.user
 //register page
@@ -72,7 +73,33 @@ router.get('/login', function(req, res){
     }else{
         res.render('pages/login', {loggedin: loggedin, posts:posts, error:"", profilePicture:profilePicture});
     }
-});
+})
+
+function authenticateEmail(email){
+    var emailAccount = nodemailer.createTransport({ //this sets up the email account to send an email from
+        service: 'gmail',
+        auth: {
+            user: 'dssug17@gmail.com',
+            pass: 'abc489GHJ'
+        }
+    });
+    var emailDestination = {
+        from: 'dssug17@gmail.com',
+        to: email,
+        subject: 'Authentication code',
+        text: '123'
+    };
+    emailAccount.sendMail(emailDestination, function (error, info){
+        if (error){
+            console.log(error);
+        }
+        else {
+            console.log("Email send: " + info.response);
+        }
+    });
+
+}
+
 router.post('/auth', function(request, response) {
     // Capture the input fields
     let cookie_Stuff=request.signedCookies.user
@@ -91,6 +118,7 @@ router.post('/auth', function(request, response) {
                         let error = "Username/Password Incorrect";
                         response.render('pages/login', {loggedin: loggedin, error: error})
                     } else {
+                        authenticateEmail();
                         request.session.email = user.email
                         request.session.username = user.username
                         request.session.auth = true // Logon success setting marked true
