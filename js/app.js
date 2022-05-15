@@ -11,14 +11,6 @@ function likedislike(x) {
     getPosts().then(    db.Post.findOneAndUpdate({title:test[i]["title"], description:test[i]["description"]},{likes:test[i]["likes"]+=1}))
 }
 
-function profilePicture(x){
-    if(x.src === "https://i.imgur.com/eMQHsNk.png"){
-        x.style.display  = "none";
-    }else{
-        x.style.display = "inline";
-    }
-}
-
 function myFunction() {
     var x = document.getElementById("myTopnav");
     if (x.className === "topnav") {
@@ -45,9 +37,8 @@ function mongoose() {
 }
 document.getElementById("likeButton0").addEventListener("click", function(){
     this.classList.toggle("fa-thumbs-down");
-    //document.getElementById("likeButton")
+
 });
 document.getElementById("likeButton1").addEventListener("click", function(){
     this.classList.toggle("fa-thumbs-down");
-    //document.getElementById("likeButton")
 });

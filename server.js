@@ -14,7 +14,7 @@ app.use(cookie_parser('1234'))
 let session = require('express-session')
 let File_Store = require('session-file-store')(session)
 const helmet = require("helmet");
-app.use(helmet())
+//app.use(helmet())
 //
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,7 +33,6 @@ app.use(session({
     }
 }))
 app.use(express.static(path.join(__dirname, 'static')));
-
 app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));
