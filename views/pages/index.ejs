@@ -3,7 +3,7 @@
 <head>
     <%- include('../partials/head'); %>
 </head>
-<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+<body data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
         <%- include('../partials/navbar', {loggedin:loggedin, profilePicture:profilePicture}); %>
         <section>
             <h1 align="center">Food Blog</h1>
@@ -20,7 +20,7 @@
                     <%}%>
                     <p><%= posts[i].description%></p>
                     <hr class="rounded1">
-                    <i onclick="likedislike(this)" class="fa fa-thumbs-up"></i>
+                    <i id="likeButton<%=i%>" class="fa fa-thumbs-up"></i>
                     <a href="/editpost/?id=<%=i%>">Edit</a>
                     <script>
                         var postNumber = i;

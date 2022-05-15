@@ -1,4 +1,4 @@
-const db = require("../db");
+//const db = require("../db");
 var test
 async function getPosts(){
     await db.Post.find({}).then(post => {
@@ -43,4 +43,11 @@ function mongoose() {
     });
 
 }
-
+document.getElementById("likeButton0").addEventListener("click", function(){
+    this.classList.toggle("fa-thumbs-down");
+    //document.getElementById("likeButton")
+});
+document.getElementById("likeButton1").addEventListener("click", function(){
+    this.classList.toggle("fa-thumbs-down");
+    //document.getElementById("likeButton")
+});
