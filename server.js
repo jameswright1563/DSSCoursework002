@@ -14,7 +14,7 @@ app.use(cookie_parser('1234'))
 let session = require('express-session')
 let File_Store = require('session-file-store')(session)
 const helmet = require("helmet");
-//app.use(helmet())
+app.use(helmet())
 //
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
