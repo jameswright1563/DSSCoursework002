@@ -7,11 +7,9 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
 const fs = require("fs");
-const {response} = require("express");
 
 const User = db.user
 //register page
-
 var posts;
 let currentUser;
 var currentPost;
@@ -159,7 +157,9 @@ router.post('/auth', function(request, response) {
             })
             // }).catch(err => next(err))
         }});
-    // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRE
+
+
+// Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRE
 
 router.get('/logout', async (req, res, next) => {
     posts = await getPosts()

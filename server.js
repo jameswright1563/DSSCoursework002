@@ -33,6 +33,7 @@ app.use(session({
     }
 }))
 app.use(express.static(path.join(__dirname, 'static')));
+
 app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));

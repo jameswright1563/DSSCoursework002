@@ -1,22 +1,12 @@
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-
-
 function alerting(){
     window.alert("Username/Password Incorrect")
 }
-
-const app = express();
 
 //app.use(session({
   //  secret: 'secret',
  //   resave: true,
   //  saveUninitialized: true
 //}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'static')));
 
 // http://localhost:3000/
 app.get('/', function(request, response) {
@@ -41,9 +31,7 @@ app.post('/auth', function(request, response) {
                 request.session.loggedin = true;
                 request.session.username = username;
                 // Redirect to home page
-                response.redirect('/home');
-            } else {
-                response.send('Incorrect Username and/or Password!');
+                response.redirect('/home');x
             }
             response.end();
         });
