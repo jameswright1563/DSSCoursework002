@@ -361,7 +361,7 @@ router.post('/signup', async function (request, response) {
             return response.json({error})
         })
 
-    if (confirm === password && username && await !checkUserExists(username, email)) {
+    if (confirm === password && username && !await checkUserExists(username, email) && captchaResponse) {
         console.log("here");
         await User.create({
             "username": username,
