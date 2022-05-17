@@ -376,4 +376,39 @@ router.get('/createpost', function(req, res){
 
     }
 });
+
+
+
+//Route for the search post function that redirects to index with posts
+router.post('/search', async function(req, res){
+    pagename="index"
+    search = req.body.search;
+    posts = await getPosts().then(posts=>{
+        where: {
+            $or: [
+                {
+                    title: {
+                        $like: '%' + search + '%'
+                    }
+                },
+                {
+                    description: {
+                        $like: '%' + search + '%'
+                    }
+                }
+            ]
+        }
+        if(authFn(req,res,next)) {
+            loggedin = "Profile"
+            profilePicture = "https://i.imgur.com/5jgN0Q9.png";
+            res.render('pages/index', {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture, page_name:pagename});
+        }
+        else{
+            res.render('pages/login', {loggedin: loggedin, error:"", profilePicture:profilePicture, page_name:pagename});
+
+        }
+    });
+
+});
+
 module.exports = router;
