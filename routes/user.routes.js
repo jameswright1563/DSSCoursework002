@@ -1,28 +1,26 @@
 const User = require("../db").user
 
 async function checkUserExists(username, email){
-    try {
-        User.find({"username": username})
-            .toArray((err, results) => {
+    User.find({"username": username})
+            .then(results => {
                 if (results.length === 0) {
                     console.log("No");
                     return false;
                 }
-            });
-    }   catch (e){
-        return false;
-    }
-    try {
-        User.find({"email": email})
-            .toArray((err, results) => {
-                if (results.length === 0) {
-                    console.log("No");
-                    return false;
-                }
-            });
-    }   catch (e){
-        return false;
-    }
+            }).catch(err =>{
+                console.log(err)
+                return false
+        });
+    User.find({"email": email})
+        .then( results => {
+            if (results.length === 0) {
+                console.log("No");
+                return false;
+            }
+        }).catch(err =>{
+            console.log(err)
+            return false
+    });
     return true;
 }
 

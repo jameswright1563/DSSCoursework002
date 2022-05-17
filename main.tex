@@ -98,7 +98,20 @@
 
 
     \section{Discussion and evidence of user testing}
-    
+
+    In this section I will detail how we carried out user testing in order to increase usability.
+
+    \\Our first testing task was for the user to be able to register successfully.
+    The user found their 2FA code in their email's spam folder, which resulted in us changing the sender's address to be more secure.
+    This increased usability as it is unusual the user would not normally search their spam folder.
+    After this change, the user was able to successfully register in less than a minute.
+
+    \\The second testing task was for the user to login.
+    The user failed the captcha on their first attempt so we lowered the difficulty on the provided API. This increased usability as the time to login was alot faster after this change, but did not decrease security.
+    This is because the whole point of a captcha is to stop multiple login attempts, not to challenge the user if they are on a secure browser and only exhausting their first login attempt.
+
+    \\The third testing task was for the user to create a post.
+    The user instantly knew where to create a post as the navbar is very usable. However, when adding a recipe to the description section
     when a post is deleted, the ID of the post gets added to the URL. If the URL was changed before the URL gets checked, the cookie/session is checked to see if the person deleting it has actually made this request.
     
     \section{Discussion and evidence of system unit testing}
