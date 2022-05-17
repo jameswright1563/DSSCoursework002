@@ -161,44 +161,70 @@ router.post('/forgotpass', function (req, res){
         )
 })
 
-router.post('/auth', function(request, response) {
+router.post('/auth', async function (request, response) {
     // Capture the input fields
+    //create variable to collect the captcha response
+
     let password = request.body.password
+    const resKey = request.body['g-recaptcha-response']
+    const secret_key = "6LexqfgfAAAAANRRAMB7qvDRs63JuWoJLG3fDG56"
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${resKey}`
+    let captchaResponse = false;
+
+    await fetch(url, {
+        method: 'post',
+    })
+        .then((response) => response.json())
+        .then((google_response) => {
+            if (google_response.success == true) {
+                console.log("Captcha success");
+                captchaResponse = true;
+                //console.log(captchaResponse);
+
+            } else {
+                console.log("Captcha failed");
+            }
+        })
+        .catch((error) => {
+            return response.json({error})
+        })
 //But the user is logging in for the first time so there won't be any appropriate signed cookie for usage.
     if (request.session.auth) { // Tagged with req.session.auth, whether the tag has passed login validation
         response.statusCode = 200
         response.send('You are already authenticated')
     } else {
-            User.findOne({username: request.body.username}).then(async user => {
-                if (user) {
-                    currentUser = user
-                    if (!bcrypt.compareSync(password, user["password"])) {
-                        loggedin = "Register/Login";
-                        let error = "Username/Password Incorrect";
-                        pagename = "login"
-                        response.render('pages/login', {
-                            loggedin: loggedin,
-                            profilePicture: profilePicture,
-                            error: error,
-                            page_name: pagename
-                        })
-                    } else {
-                        request.session.email = user.email
-                        request.session.username = user.username
-                        emailtext = (Math.random() + 1).toString(36).substring(7);
+        User.findOne({username: request.body.username}).then(async user => {
+            if (user) {
+                currentUser = user
+                console.log(captchaResponse);
+                if (!bcrypt.compareSync(password, user["password"]) || captchaResponse === false) {
+                    loggedin = "Register/Login";
+                    let error = "Username/Password or captcha Incorrect";
+                    pagename = "login"
+                    response.render('pages/login', {
+                        loggedin: loggedin,
+                        profilePicture: profilePicture,
+                        error: error,
+                        page_name: pagename
+                    })
+                } else {
+                    request.session.email = user.email
+                    request.session.username = user.username
+                    emailtext = (Math.random() + 1).toString(36).substring(7);
 
-                        await authenticateEmail(request, request.session.email, emailtext)
-                        pagename = "login"
-                        response.render("pages/authenticate", {
-                            loggedin: loggedin,
-                            error: "",
-                            page_name: pagename
-                        })
-                    }
-
+                    await authenticateEmail(request, request.session.email, emailtext)
+                    pagename = "login"
+                    response.render("pages/authenticate", {
+                        loggedin: loggedin,
+                        error: "",
+                        page_name: pagename
+                    })
                 }
-            })
-        }});
+
+            }
+        })
+    }
+});
 
 
 // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRE

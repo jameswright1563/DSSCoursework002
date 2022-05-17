@@ -9,7 +9,11 @@ app.use(cookie_parser('1234'))
 let session = require('express-session')
 let File_Store = require('session-file-store')(session)
 const helmet = require("helmet");
-app.use(helmet())
+app.use(helmet.contentSecurityPolicy({directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "trusted-cdn.com", "https://www.google.com/recaptcha/", "https://www.gstatic.com/recaptcha/", "code.jquery.com", "cdn.jsdelivr.net", "stackpath.bootstrapcdn.com"],
+        frameSrc: ["'self'", "https://www.google.com/recaptcha/", "https://recaptcha.google.com/recaptcha/"]
+    }}));
 //
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
