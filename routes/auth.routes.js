@@ -25,16 +25,7 @@ let authFn = (req, res) => {
   }
 }
 
-async function getPosts(){
-  await db.Post.find({}).then(post => {
-    posts= post
-    return posts
-  }).catch(err => {
-    console.log(err);
-    posts = [];
-    return posts})
-  return posts
-}
+
 
 async function authenticateEmail(req, email, message) {
   var emailAccount = nodemailer.createTransport({ //this sets up the email account to send an email from
@@ -66,48 +57,7 @@ function encryptpass(passw){
   return pass
 }
 
-async function uploadImage(req) {
 
-  if (!req.files) {
-    console.log("No files were uploaded")
-  }
-  req.on('data', (data) => {
-    console.log(data.toString());
-  });
-  const file = req.files.image;
 
-  const paths = path.join(__dirname, '..', 'uploads', String(file.name));
-  await file.mv(paths, (err) => {
-    if (err) {
-      console.log("success");
-    }
-  });
-  return file
-}
 
-function fileFilter(req,res,cb) {
-  if(file.mimetype === "image/jpeg"||file.mimetype ==='image/png'||file.mimetype ==='image/webp'||file.mimetype==='image/jpg'){
-
-    cb(null, true);
-  }
-
-  else{
-    cb(null,false);
-  }
-}
-function checkUserExists(username){
-  try {
-    User.find({"username": username})
-        .toArray((err, results) => {
-          if (results.length == 0) {
-            console.log("No");
-            return false;
-          }
-          return true;
-        });
-  }   catch (e){
-    return false;
-  }
-}
-
-module.exports = {authFn, getPosts , authenticateEmail, encryptpass, fileFilter, checkUserExists, uploadImage ,loggedin};
+module.exports = {authFn , authenticateEmail, encryptpass,loggedin};

@@ -5,8 +5,9 @@ const router  = express.Router();
 const path = require('path')
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
-var {authFn, getPosts,authenticateEmail, encryptpass, fileFilter, checkUserExists, uploadImage ,loggedin} = require('./auth.routes')
-const fs = require("fs");
+var {authFn , authenticateEmail, encryptpass,loggedin} = require('./auth.routes')
+const {checkUserExists} = require('./user.routes')
+const {getPosts, fileFilter, uploadImage} = require('./post.routes')
 const User = db.user
 //register page
 var posts;
@@ -37,6 +38,7 @@ router.post('/search', async function(req, res){
 
 
 });
+
 async function index(req, res) {
     pagename = "index"
     profilePicture = "https://i.imgur.com/eMQHsNk.png";
@@ -187,12 +189,10 @@ router.post('/auth', function(request, response) {
                         emailtext = (Math.random() + 1).toString(36).substring(7);
 
                         await authenticateEmail(request, request.session.email, emailtext)
-                        profilePicture = ""
                         pagename = "login"
                         response.render("pages/authenticate", {
                             loggedin: loggedin,
                             error: "",
-                            profilePicture: "",
                             page_name: pagename
                         })
                     }
@@ -315,12 +315,16 @@ router.post('/signup', async function (request, response) {
         });
         request.session.email = email
         request.session.username = username
-        request.session.auth = true // Logon success setting marked true
+        request.session.auth = false // Logon success setting marked true
         response.statusCode = 200
-        loggedin = "Profile";
+        loggedin = "Register/Login";
         profilePicture = "https://i.imgur.com/5jgN0Q9.png";
-        pagename="index"
-        await getPosts().then(post=>response.render('pages/index', {loggedin: loggedin, posts: post, error:"", page_name:pagename, profilePicture: profilePicture}))
+        pagename="login"
+        response.render("pages/authenticate", {
+            loggedin: loggedin,
+            error: "",
+            page_name: pagename
+        })
     }
     else{
         page_name="login"
