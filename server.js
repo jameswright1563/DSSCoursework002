@@ -2,13 +2,8 @@ require("dotenv").config()
 const express = require("express");
 const path = require('path')
 const app = express();
-const mongoose = require("mongoose")
-const fs = require('fs')
-const multer = require('multer')
 const fileupload = require("express-fileupload");
-const Grid = require("gridfs-stream");
 const bodyParser = require('body-parser')
-let passport = require('passport')
 let cookie_parser=require('cookie-parser')
 app.use(cookie_parser('1234'))
 let session = require('express-session')

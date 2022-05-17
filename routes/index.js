@@ -173,7 +173,6 @@ router.post('/auth', function(request, response) {
                 if (user) {
                     currentUser = user
                     if (!bcrypt.compareSync(password, user["password"])) {
-                        profilePicture = "https://i.imgur.com/eMQHsNk.png";
                         loggedin = "Register/Login";
                         let error = "Username/Password Incorrect";
                         pagename = "login"
@@ -307,7 +306,7 @@ router.post('/signup', async function (request, response) {
     let email = request.body.email;
     let password = request.body.password2;
     let confirm = request.body.confirm_password;
-    if (confirm === password && username && !checkUserExists(username)) {
+    if (confirm === password && username && await !checkUserExists(username, email)) {
         await User.create({
             "username": username,
             "email": email,
@@ -318,7 +317,6 @@ router.post('/signup', async function (request, response) {
         request.session.auth = false // Logon success setting marked true
         response.statusCode = 200
         loggedin = "Register/Login";
-        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         pagename="login"
         response.render("pages/authenticate", {
             loggedin: loggedin,
@@ -327,8 +325,15 @@ router.post('/signup', async function (request, response) {
         })
     }
     else{
-        page_name="login"
-        response.redirect("/login")
+        loggedin = "Register/Login";
+        let error = "Cannot sign up with those details. The username or email may have been used";
+        pagename = "login"
+        response.render('pages/login', {
+            loggedin: loggedin,
+            profilePicture: profilePicture,
+            error: error,
+            page_name: pagename
+        })
     }
 })
 
@@ -373,40 +378,6 @@ router.get('/createpost', function(req, res){
         res.render('pages/login', {loggedin: loggedin, error:"", profilePicture:profilePicture, page_name:pagename});
 
     }
-});
-
-
-
-//Route for the search post function that redirects to index with posts
-router.post('/search', async function(req, res){
-    pagename="index"
-    search = req.body.search;
-    posts = await getPosts().then(posts=>{
-        where: {
-            $or: [
-                {
-                    title: {
-                        $like: '%' + search + '%'
-                    }
-                },
-                {
-                    description: {
-                        $like: '%' + search + '%'
-                    }
-                }
-            ]
-        }
-        if(authFn(req,res,next)) {
-            loggedin = "Profile"
-            profilePicture = "https://i.imgur.com/5jgN0Q9.png";
-            res.render('pages/index', {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture, page_name:pagename});
-        }
-        else{
-            res.render('pages/login', {loggedin: loggedin, error:"", profilePicture:profilePicture, page_name:pagename});
-
-        }
-    });
-
 });
 
 module.exports = router;

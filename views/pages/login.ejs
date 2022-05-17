@@ -11,6 +11,7 @@
         </section>
         <div class="login">
             <p id="message"></p>
+            <p><%= error %></p>
             <h1>Login</h1>
             <form action="/auth" method="post" class="form1">
                 <label for="username">
@@ -25,7 +26,6 @@
                 <a href="/forgot">Forgotten Username/Password?</a>
                 <input type="submit" value="Login">
             </form>
-            <p><%= error %></p>
 
         </div>
 
