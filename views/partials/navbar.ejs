@@ -3,9 +3,9 @@
     <a href="/login" <% if (page_name === 'login') { %>class="active" <% }%>>
         <%=loggedin%>
     </a>
-
-    <a href="/" <% if (page_name === 'index') { %>class="active" <% } %> >Home</a>
     <a href="/createpost" onclick="testFunction()"      <% if (page_name === 'createpost') { %>class="active" <% } %>>Create A post</a>
+    <a href="/" <% if (page_name === 'index') { %>class="active" <% } %> >Home</a>
+
     <a href="javascript:void(0);" class="icon" onclick="myFunction()">
         <i class="fa fa-bars"></i>
     </a>

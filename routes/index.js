@@ -161,6 +161,10 @@ router.post('/forgotpass', function (req, res){
         )
 })
 
+function captchaCheck(){
+
+}
+
 router.post('/auth', async function (request, response) {
     // Capture the input fields
     //create variable to collect the captcha response
@@ -196,7 +200,6 @@ router.post('/auth', async function (request, response) {
         User.findOne({username: request.body.username}).then(async user => {
             if (user) {
                 currentUser = user
-                console.log(captchaResponse);
                 if (!bcrypt.compareSync(password, user["password"]) || captchaResponse === false) {
                     loggedin = "Register/Login";
                     let error = "Username/Password or captcha Incorrect";
