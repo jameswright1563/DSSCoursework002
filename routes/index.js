@@ -18,6 +18,8 @@ var pagename;
 var emailtext;
 
 
+
+
 //Route for the search post function that redirects to index with posts
 router.post('/search', async function(req, res){
     pagename="index"
