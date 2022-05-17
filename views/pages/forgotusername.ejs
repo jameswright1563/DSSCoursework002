@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+
+</head>
+<body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
+    <%- include('../partials/navbar', {loggedin:loggedin, profilePicture:profilePicture}); %>
+    <section>
+        <h1 align="center">Food Blog</h1>
+    </section>
+    <div class="login">
+        <p id="message"></p>
+        <h1>Forgot Username/Password</h1>
+        <form action="/forgotuser" method="post">
+            <input type="text" name="useremail" placeholder="Email" required>
+            <input type="submit" value="Forgot username">
+        </form>
+        <form action="/forgotpass" method="post">
+            <input type="text" name="userpass" placeholder="Username" required>
+            <input type="submit" value="Forgot Password">
+        </form>
+    </div>
+
+
+
+</div>
+<footer>
+    <%- include('../partials/footer'); %>
+</footer>
+</body>
+</html>

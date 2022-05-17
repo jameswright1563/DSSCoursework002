@@ -1,65 +1,113 @@
 const db = require("../db");
-const express = require("express");
-const conn = db.mongoose.connection
-var bodyParser = require('body-parser')
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const path = require("path");
+var posts = [];
+let currentUser;
+var currentPost;
+var profilePicture;
+var pagename;
+var emailtext;
+const User = db.user
 
-var router = express.Router();
-router.use(bodyParser.json())
+var currentSession, loggedin;
+let authFn = (req, res) => {
+  if (req.session.auth) {
+    currentSession=req.session
+    console.log(req.session)
+    profilePicture = "https://i.imgur.com/5jgN0Q9.png";
+    loggedin = "Profile"
+    return true
+  } else {
+    profilePicture = "https://i.imgur.com/eMQHsNk.png";
+    loggedin = "Register/Login"
+    return false
+  }
+}
 
+async function getPosts(){
+  await db.Post.find({}).then(post => {
+    posts= post
+    return posts
+  }).catch(err => {
+    console.log(err);
+    posts = [];
+    return posts})
+  return posts
+}
+
+async function authenticateEmail(req, email, message) {
+  var emailAccount = nodemailer.createTransport({ //this sets up the email account to send an email from
+    service: 'gmail',
+    auth: {
+      user: 'dssug17@gmail.com',
+      pass: 'abc489GHJ'
+    }
+  });
+  var emailDestination = {
+    from: 'dssug17@gmail.com',
+    to: email,
+    subject: 'Authentication code',
+    text: message
+  };
+  await emailAccount.sendMail(emailDestination, async function (error, info) {
+    if (error) {
+      console.log("Error: "+error);
+    } else {
+      console.log("Email send: " + info.response);
+
+    }
+  })
+
+
+}
 function encryptpass(passw){
   var pass =bcrypt.hashSync(passw, 8)
   return pass
 }
 
-async function passVerify(pass, datab) {
-  var encypt = await encryptpass(pass)
-  bcrypt.compare(encypt, datab["password"], function (err, res) {
-    if (typeof err !== "undefined") {
-      return false;
-    }
-    if (res) {
-      return true;
-    }
-    return false;
-  })
-}
-router.post('/auth', function(request, response,next) {
-  // Capture the input fields
-  let username = request.body.username;
-  let cookie_Stuff=request.signedCookies.user
-  let password = request.body.password
-//But the user is logging in for the first time so there won't be any appropriate signed cookie for usage.
-  if (request.session.auth) { // Tagged with req.session.auth, whether the tag has passed login validation
-    response.statusCode = 200
-    response.send('You are already authenticated')
-  } else {
-    conn.collection("users").findOne({username: request.body.username}).then(user => {
-      if (user) {
-        if (!passVerify(password, user)) {
-          let loggedin = "Register/Login";
-          let error="Username/Password Incorrect";
-          response.render('pages/login', {loggedin:loggedin, error:error})
-        } else {
-          request.session.email =user.email
-          request.session.username = user.username
-          request.session.auth = true // Logon success setting marked true
-          response.statusCode = 200
-          let loggedin = "Profile";
-          response.render('pages/index', {loggedin:loggedin, test:test})
-        }
+async function uploadImage(req) {
 
-      } else { // No user specified
-        var err = new Error(`User ${request.body.username} does not exist!`)
-        err.status = 403
-        next(err)
-      }
-      // }).catch(err => next(err))
-    }).catch(err => {
-      console.log(err)
-    })
+  if (!req.files) {
+    console.log("No files were uploaded")
   }
-  // Ensure the input fields exists and are not empty - EXTRA CHECKS REQUIRE
-});
+  req.on('data', (data) => {
+    console.log(data.toString());
+  });
+  const file = req.files.image;
 
-module.exports = router;
+  const paths = path.join(__dirname, '..', 'uploads', String(file.name));
+  await file.mv(paths, (err) => {
+    if (err) {
+      console.log("success");
+    }
+  });
+  return file
+}
+
+function fileFilter(req,res,cb) {
+  if(file.mimetype === "image/jpeg"||file.mimetype ==='image/png'||file.mimetype ==='image/webp'||file.mimetype==='image/jpg'){
+
+    cb(null, true);
+  }
+
+  else{
+    cb(null,false);
+  }
+}
+function checkUserExists(username){
+  try {
+    User.find({"username": username})
+        .toArray((err, results) => {
+          if (results.length == 0) {
+            console.log("No");
+            return false;
+          }
+          return true;
+        });
+  }   catch (e){
+    return false;
+  }
+}
+
+module.exports = {authFn, getPosts , authenticateEmail, encryptpass, fileFilter, checkUserExists, uploadImage ,loggedin};

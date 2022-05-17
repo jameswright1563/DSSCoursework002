@@ -23,7 +23,7 @@ app.use('/uploads', express.static('uploads'))
 app.set('view engine', 'ejs');
 app.use(session({
     store: new File_Store(),
-    secret: "1234",
+    secret: process.env.SECRET,
     resave: true,
     saveUninitialized: false,
     httpOnly: true,
@@ -38,12 +38,7 @@ app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
-var loggedin = "Register/Login"
-var posts = [];
 var db = require("./db.js");
-const Role = db.role;
-//Get data from database for posts and put in a variable to send to the page.
-const conn = mongoose.connection;
 
 
 app.use('/', require('./routes/index'))

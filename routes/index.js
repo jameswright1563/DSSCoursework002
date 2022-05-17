@@ -5,9 +5,8 @@ const router  = express.Router();
 const path = require('path')
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
-const nodemailer = require("nodemailer");
+var {authFn, getPosts,authenticateEmail, encryptpass, fileFilter, checkUserExists, uploadImage ,loggedin} = require('./auth.routes')
 const fs = require("fs");
-
 const User = db.user
 //register page
 var posts;
@@ -15,58 +14,63 @@ let currentUser;
 var currentPost;
 var profilePicture;
 var pagename;
-async function getPosts(){
-    await db.Post.find({}).then(post => {
-        posts= post
-    })
-    return posts
-}
-var currentSession, loggedin;
-let authFn = (req, res) => {
-    if (req.session.auth) {
-        currentSession=req.session
-        console.log(req.session)
-        profilePicture = "https://i.imgur.com/5jgN0Q9.png";
-        loggedin = "Profile"
-        return true
-    } else {
-        profilePicture = "https://i.imgur.com/eMQHsNk.png";
-        loggedin = "Register/Login"
-        return false
-    }
-}
-function encryptpass(passw){
-    var pass =bcrypt.hashSync(passw, 8)
-    return pass
-}
+var emailtext;
 
-async function passVerify(pass, datab) {
-    var encypt = await encryptpass(pass)
-    bcrypt.compare(encypt, datab["password"], function (err, res) {
-        if (typeof err !== "undefined") {
-            return false;
-        }
-        if (res) {
-            return true;
-        }
-        return false;
-    })
-}
-router.get('^/$|/index', async (req, res) => {
+
+//Route for the search post function that redirects to index with posts
+router.post('/search', async function(req, res){
     pagename="index"
-    posts = await getPosts().then(posts=>{
-        if (authFn(req, res)) {
-            console.log("User logged in: %s", req.session.username)
-        }
-        res.render('pages/index.ejs', {loggedin: loggedin, posts: posts, error:"", profilePicture: profilePicture, page_name:pagename})
-    })
+    search = req.body.search;
+    posts = await db.Post.find({$text: {$search: search}}).then(posts=>{
 
+            console.log(posts.length)
+            if(authFn(req,res)) {
+                loggedin = "Profile"
+                profilePicture = "https://i.imgur.com/5jgN0Q9.png";
+                res.render('pages/index', {loggedin: loggedin, posts: posts, error:"", profilePicture:profilePicture, page_name:pagename});
+            }
+            else{
+                res.render('pages/login', {loggedin: loggedin,posts:posts, error:"", profilePicture:profilePicture, page_name:pagename});
 
-})
+            }
+        })
 
-router.get('/getprofilepicture', function(req ,res){
 
 });
+async function index(req, res) {
+    pagename = "index"
+    profilePicture = "https://i.imgur.com/eMQHsNk.png";
+
+    posts = await getPosts().then(post => {
+        if (authFn(req, res)) {
+            console.log("User logged in: %s", req.session.username)
+            loggedin = "Profile"
+
+            res.render('pages/index.ejs', {
+                loggedin: loggedin,
+                posts: post,
+                error: "",
+                profilePicture: profilePicture,
+                page_name: pagename
+            })
+        } else {
+            loggedin = "Register/Login"
+            res.render('pages/index.ejs', {
+                loggedin: loggedin,
+                posts: post,
+                error: "",
+                profilePicture: "https://i.imgur.com/eMQHsNk.png",
+                page_name: pagename
+            })
+        }
+    })
+}
+router.get('/', async (req, res) => {
+    index(req, res)
+})
+router.get('/index', async (req, res) =>{
+    index(req,res)
+})
 
 router.get('/login', function(req, res){
     pagename="login"
@@ -76,59 +80,87 @@ router.get('/login', function(req, res){
         res.render('pages/login', {loggedin: loggedin, posts:posts, error:"", profilePicture:profilePicture,page_name:pagename});
     }
 })
-var emailText = bcrypt.hashSync('123', 8)
-async function authenticateEmail(req, email) {
-    var emailAccount = nodemailer.createTransport({ //this sets up the email account to send an email from
-        service: 'gmail',
-        auth: {
-            user: 'dssug17@gmail.com',
-            pass: 'abc489GHJ'
+
+router.get("/change", async function(req, res){
+    res.render("pages/changepassword",{loggedin: loggedin,
+        profilePicture: profilePicture,
+        page_name:pagename})
+})
+
+router.post("/changepass",async function(req, res){
+    if(req.body.password2===req.body.confirm_password) {
+        User.findOneAndUpdate({email: req.session.email}, {password: encryptpass(req.body.password2)}).then(user => {
+            console.log("Password changed for "+user["username"])
+            res.render('pages/profile', {loggedin: loggedin, error:"Password changed",email:req.session.email, username:req.session.username , profilePicture:profilePicture, page_name:pagename});
+        }).catch(err =>{
+            console.log(err)
+            res.render('pages/profile', {loggedin: loggedin, error:"Password cannot be changed",email:req.session.email, username:req.session.username , profilePicture:profilePicture, page_name:pagename});
         }
-    });
-    var emailDestination = {
-        from: 'dssug17@gmail.com',
-        to: email,
-        subject: 'Authentication code',
-        text: emailText
-    };
-    await emailAccount.sendMail(emailDestination, async function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log("Email send: " + info.response);
 
-        }
-    })
-
-
-}
-
+    )
+    }
+})
 router.post("/authenticatecode", async function (request, response) {
     pagename="login"
-    var authcode = bcrypt.hashSync(request.body.authcode, 8);
-    if (bcrypt.compareSync(emailText, authcode)) {
+    var authcode = request.body.authcode;
+    if (authcode===emailtext) {
         request.session.fa = true
         request.session.auth = true // Logon success setting marked true
         profilePicture = "https://i.imgur.com/5jgN0Q9.png";
         loggedin = "Profile";
         await getPosts().then(post => {
+            pagename = "index"
             response.render('pages/index', {
                 loggedin: loggedin,
-                posts: posts,
+                posts: post,
                 error: "",
                 profilePicture: profilePicture,
                 page_name:pagename
             })
         });
     } else {
-        error = "Wrong code!"
-        response.redirect("/login")
+        let error = "Wrong code!"
+        response.render("pages/authenticate", {
+            loggedin: loggedin,
+            error: error,
+            profilePicture: "",
+            page_name: pagename
+        })
     }
 });
 
+
+router.get('/forgot', function (req, res){
+    res.render('pages/forgotusername', {page_name:pagename, profilePicture:"", loggedin:loggedin})
+})
+router.post('/forgotuser', function (req, res){
+    loggedin = "Register/Login";
+    let error = "If account is valid, the username has been sent to the email";
+    pagename="login"
+    User.findOne({email: req.body.useremail}).then(async user => {
+        console.log(user)
+        await authenticateEmail(req, req.body.useremail, "Username: "+user["username"])
+        res.render('pages/login', {loggedin: loggedin, profilePicture:profilePicture, error: error, page_name: pagename})
+        })
+        .catch(err => {res.render('pages/login', {loggedin: loggedin, profilePicture:profilePicture, error: error, page_name: pagename})}
+        )
+})
+router.post('/forgotpass', function (req, res){
+    loggedin = "Register/Login";
+    let error = "If account is valid, a new password has been sent to the email";
+    pagename="login"
+    let r = (Math.random() + 1).toString(36).substring(7);
+    User.findOneAndUpdate({username: req.body.userpass}, {password: encryptpass(r)}).then(async user => {
+        console.log(user)
+        await authenticateEmail(req, user["email"], "Password: "+r)
+        res.render('pages/login', {loggedin: loggedin, profilePicture:profilePicture, error: error, page_name: pagename})
+    })
+        .catch(err => {res.render('pages/login', {loggedin: loggedin, profilePicture:profilePicture, error: error, page_name: pagename})}
+        )
+})
+
 router.post('/auth', function(request, response) {
     // Capture the input fields
-    let cookie_Stuff=request.signedCookies.user
     let password = request.body.password
 //But the user is logging in for the first time so there won't be any appropriate signed cookie for usage.
     if (request.session.auth) { // Tagged with req.session.auth, whether the tag has passed login validation
@@ -138,24 +170,35 @@ router.post('/auth', function(request, response) {
             User.findOne({username: request.body.username}).then(async user => {
                 if (user) {
                     currentUser = user
-                    if (!passVerify(password, user)) {
+                    if (!bcrypt.compareSync(password, user["password"])) {
                         profilePicture = "https://i.imgur.com/eMQHsNk.png";
                         loggedin = "Register/Login";
                         let error = "Username/Password Incorrect";
-                        response.render('pages/login', {loggedin: loggedin, error: error})
+                        pagename = "login"
+                        response.render('pages/login', {
+                            loggedin: loggedin,
+                            profilePicture: profilePicture,
+                            error: error,
+                            page_name: pagename
+                        })
                     } else {
                         request.session.email = user.email
                         request.session.username = user.username
+                        emailtext = (Math.random() + 1).toString(36).substring(7);
 
-                        await authenticateEmail(request, request.session.email)
-                        profilePicture=""
-                        pagename="login"
-                        response.render("pages/authenticate", {loggedin:loggedin,error: "",profilePicture:"",page_name:pagename})
+                        await authenticateEmail(request, request.session.email, emailtext)
+                        profilePicture = ""
+                        pagename = "login"
+                        response.render("pages/authenticate", {
+                            loggedin: loggedin,
+                            error: "",
+                            profilePicture: "",
+                            page_name: pagename
+                        })
                     }
 
                 }
             })
-            // }).catch(err => next(err))
         }});
 
 
@@ -178,6 +221,7 @@ router.get('/logout', async (req, res, next) => {
 })
 
 var description;
+var title
 router.post("/textedit", function (req, res){
     title =  req.body.description;
     description = req.body.description;
@@ -209,7 +253,8 @@ router.get("/deletepost", async function (req, res) {
             res.render("pages/index", {
                 loggedin: loggedin,
                 posts: posts,
-                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER", profilePicture:profilePicture
+                error: "CANNOT EDIT THAT POST AS YOU ARE NOT LOGGED IN AS THAT USER", profilePicture:profilePicture,
+                page_name: pagename
             })
         }
     })
@@ -218,16 +263,7 @@ var upload = multer({
     storage:storage,
     fileFilter: (req, file, cb) => {fileFilter(req, file, cb)}
 })
-function fileFilter(req,res,cb) {
-    if(file.mimetype === "image/jpeg"||file.mimetype ==='image/png'||file.mimetype ==='image/webp'||file.mimetype==='image/jpg'){
 
-        cb(null, true);
-    }
-
-    else{
-        cb(null,false);
-    }
-}
 
 router.get("/editpost", async function (req, res) {
     pagename="index"
@@ -251,21 +287,7 @@ router.get("/editpost", async function (req, res) {
 })
 
 router.post("/editpostimage", upload.single("form"),async function (req, res) {
-    if (!req.files) {
-        console.log("No files were uploaded")
-    }
-    req.on('data', (data) => {
-        console.log(data.toString());
-    });
-    const file = req.files.image;
-
-    const paths = path.join(__dirname, '..','uploads', String(file.name));
-    await file.mv(paths, (err) => {
-        if (err) {
-            console.log("success");
-        }
-    });
-    await console.log(fs.readFileSync(paths))
+    const file = await uploadImage(req)
     await db.Post.findOneAndUpdate({currentPost}, {
         "author": req.session.username,
         "title": title,
@@ -279,20 +301,7 @@ router.post("/editpostimage", upload.single("form"),async function (req, res) {
     })
     res.redirect("/index")
 })
-function checkUserExists(username){
-    try {
-        User.find({"username": username})
-            .toArray((err, results) => {
-                if (results.length == 0) {
-                    console.log("No");
-                    return false;
-                }
-                return true;
-            });
-    }   catch (e){
-        return false;
-    }
-}
+
 router.post('/signup', async function (request, response) {
     let username = request.body.username;
     let email = request.body.email;
@@ -329,22 +338,7 @@ router.post('/makepost', async function(req, res){
 });
 router.post('/makepostimage', upload.single('form'), async function(req, res){
     pagename="createpost"
-
-    if(!req.files)
-    {
-        console.log("No files were uploaded")
-    }
-    req.on('data', (data) => {
-        console.log(data.toString());
-    });
-    const file = req.files.image;
-
-    const paths = path.join(__dirname, '..','uploads', String(file.name));
-    await file.mv(paths, (err) => {
-        if (err) {
-            console.log("success");
-        }
-    });
+    const file= await uploadImage(req)
 
     await db.Post.create({
         "author": req.session.username,

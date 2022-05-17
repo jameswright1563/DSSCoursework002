@@ -1,15 +1,29 @@
-//const db = require("../db");
-var test
+const db = require("../db");
+var posts
 async function getPosts(){
     await db.Post.find({}).then(post => {
-        test=post
-    })
+        posts=post
+    }).catch()
 }
 function likedislike(x) {
     x.classList.toggle("fa-thumbs-down");
     console.log("yes")
     getPosts().then(    db.Post.findOneAndUpdate({title:test[i]["title"], description:test[i]["description"]},{likes:test[i]["likes"]+=1}))
 }
+const searchBar = document.getElementById('searchBar');
+
+searchBar.addEventListener('keyup', (e) => {
+    const searchString = e.target.value.toLowerCase();
+
+    const filteredPosts = posts.filter((post) => {
+        return (
+            post.title.toLowerCase().includes(searchString) ||
+            post.description.toLowerCase().includes(searchString)
+        );
+    });
+    document.getElementById("divpost")
+    document.createTextNode(searchString)
+})
 
 function myFunction() {
     var x = document.getElementById("myTopnav");
@@ -35,10 +49,6 @@ function mongoose() {
     });
 
 }
-document.getElementById("likeButton0").addEventListener("click", function(){
-    this.classList.toggle("fa-thumbs-down");
-
-});
 document.getElementById("likeButton1").addEventListener("click", function(){
     this.classList.toggle("fa-thumbs-down");
 });

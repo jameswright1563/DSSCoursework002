@@ -5,7 +5,7 @@
 
 </head>
 <body data-home-page="login.html" data-home-page-title="Home" class="u-body u-xl-mode"><div class="u-clearfix u-sheet u-valign-middle u-sheet-1">
-        <%- include('../partials/navbar', {loggedin:loggedin, profilePicture:profilePicture}); %>
+        <%- include('../partials/navbar', {loggedin:loggedin}); %>
         <section>
             <h1 align="center">Food Blog</h1>
         </section>
@@ -22,7 +22,7 @@
                     <i class="fas fa-lock"></i>
                 </label>
                 <input type="password" name="password" placeholder="Password" id="password" required>
-                <a href="">Forgotten Username/Password?</a>
+                <a href="/forgot">Forgotten Username/Password?</a>
                 <input type="submit" value="Login">
             </form>
             <p><%= error %></p>
