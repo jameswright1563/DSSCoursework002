@@ -18,8 +18,8 @@
 }
 
 .posts{
- border: 1px solid grey;
- border-radius: inherit;
+ border: 2px solid grey;
+ border-radius: 10px;
 }
 
 .posts p{
@@ -55,6 +55,16 @@ posts i{
  padding: 20px 16px;
  text-decoration: none;
  font-size: 17px;
+}
+
+.topnav div {
+    float: left;
+    display: inline;
+    color: black;
+    text-align: center;
+    padding: 20px 16px;
+    text-decoration: none;
+    font-size: 17px;
 }
 
 /* Change the color of links on hover */
@@ -149,6 +159,12 @@ posts i{
 }
 body {
  background-color: #435165;
+}
+#container{
+    width: 80%;
+    height: 600px;
+    margin: auto;
+    padding: 10px;
 }
 .login {
  width: 400px;
