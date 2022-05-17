@@ -337,7 +337,32 @@ router.post('/signup', async function (request, response) {
     let email = request.body.email;
     let password = request.body.password2;
     let confirm = request.body.confirm_password;
+
+    //Recaptcha code.
+    const resKey = request.body['g-recaptcha-response']
+    const secret_key = "6LexqfgfAAAAANRRAMB7qvDRs63JuWoJLG3fDG56"
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secret_key}&response=${resKey}`
+    let captchaResponse = false;
+
+    await fetch(url, {
+        method: 'post',
+    })
+        .then((response) => response.json())
+        .then((google_response) => {
+            if (google_response.success == true) {
+                console.log("Captcha success");
+                captchaResponse = true;
+
+            } else {
+                console.log("Captcha failed");
+            }
+        })
+        .catch((error) => {
+            return response.json({error})
+        })
+
     if (confirm === password && username && await !checkUserExists(username, email)) {
+        console.log("here");
         await User.create({
             "username": username,
             "email": email,
