@@ -37,6 +37,7 @@ app.use('/html',express.static('html'));
 app.use('/img',express.static('img'));
 app.use('/css', express.static('css'));
 app.use('/js', express.static('js'));
+app.use(express.static('favicon'));
 var db = require("./db.js");
 const {loggedin} = require("./routes/auth.routes");
 
