@@ -1,3 +1,38 @@
 \begin{thebibliography}{}
 
+\bibitem[bcrypt, ]{bcrypt}
+bcrypt.
+\newblock Npm bcrypt package.
+\newblock \url{https://www.npmjs.com/package/bcrypt}.
+
+\bibitem[Hacksplaining, a]{accenum}
+Hacksplaining.
+\newblock Avoiding user enumeration.
+\newblock \url{https://www.hacksplaining.com/prevention/user-enumeration}.
+
+\bibitem[Hacksplaining, b]{sqlinjection}
+Hacksplaining.
+\newblock Protecting against sql injection.
+\newblock \url{https://www.hacksplaining.com/prevention/sql-injection}.
+
+\bibitem[Hacksplaining, c]{xss}
+Hacksplaining.
+\newblock Protecting your users against cross-site scripting.
+\newblock \url{https://www.hacksplaining.com/prevention/xss-stored}.
+
+\bibitem[Hacksplaining, d]{csrf}
+Hacksplaining.
+\newblock Protecting your users against csrf.
+\newblock \url{https://www.hacksplaining.com/prevention/csrf}.
+
+\bibitem[Hacksplaining, e]{sessionhijack}
+Hacksplaining.
+\newblock Protecting your users against session fixation.
+\newblock \url{https://www.hacksplaining.com/prevention/session-fixation}.
+
+\bibitem[Helmet, ]{helmet}
+Helmet.
+\newblock Npm helmet package.
+\newblock \url{https://www.npmjs.com/package/helmet}.
+
 \end{thebibliography}
