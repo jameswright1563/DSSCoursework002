@@ -5,4 +5,4 @@ Run the node file server.js to start the server. The server should then be acces
 
 Run this in terminal in the project directory:
 
-¬node app.js
+node server.js
